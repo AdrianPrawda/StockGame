@@ -12,7 +12,7 @@ public class StockGameLauncher {
 	private static StockPriceProvider provider = new PerlinStockPriceProvider(0.5, 6, 0.455, 2.5, 8);
 	private static AccountManagerImpl manager = new AccountManagerImpl(provider);
 	private static boolean debug = false;
-	private static StockGameCommandProcessor commandProcessor = new StockGameCommandProcessor(manager);
+	private static StockGameCommandProcessor commandProcessor = new StockGameCommandProcessor(manager, provider);
 	
 	private static void scanInput(){
 		try{

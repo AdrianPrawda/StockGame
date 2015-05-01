@@ -7,8 +7,10 @@ public enum StockGameCommandType implements CommandTypeInfo{
 	EXIT("exit"," * exit program"),
 	CREATEPLAYER("crp","<name> * create new player", String.class),
 	BUYSHARE("bs","<player> <sharename> <amount> * buy that amount of shares", String.class, String.class, int.class),
-	LISTPLAYERS("lsp"," * list all registered players");
-	
+	SELLSHARE("ss", "<player> <sharename> <amount> * sell that amount of shares", String.class, String.class, int.class),
+	LISTPLAYERS("lsp"," * list all registered players"),
+	LISTSHARES("lss", " * list all available shares");
+
 	private String cmdName;
 	private String helpText;
 	private Class<?>[] classes;

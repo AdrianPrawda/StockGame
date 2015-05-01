@@ -55,7 +55,7 @@ public class CommandScanner {
 			return container;
 		}
 		
-		System.out.println("ParamType length: " + paramType.length);
+//		System.out.println("ParamType length: " + paramType.length);
 		
 		for(Class element : paramType){
 			Object obj = null;
@@ -63,9 +63,9 @@ public class CommandScanner {
 				//Try explicitly casting (element)object
 				obj = element.cast(element.newInstance());
 				obj = args[j+1];
-				//TEST
-				System.out.println(j + ". Class: " + obj.getClass());
-				System.out.println(j + ". Data:  " + obj);
+				
+//				System.out.println(j + ". Class: " + obj.getClass());
+//				System.out.println(j + ". Data:  " + obj);
 			}catch(IllegalAccessException e){
 				//Private or protected constructor, probably singleton
 			}catch(InstantiationException e){

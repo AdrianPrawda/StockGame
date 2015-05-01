@@ -10,14 +10,17 @@ import prog.core.enumerator.StockGameCommandType;
 import prog.ui.CommandDescriptor;
 import prog.exception.GameException;
 import prog.exception.GameRuntimeException;
+import prog.core.provider.*;
 
 public class StockGameCommandProcessor {
 	private AccountManagerImpl manager;
+	private StockPriceProvider provider;
 	private BufferedReader reader;
 	private PrintWriter writer;
 	
-	public StockGameCommandProcessor(AccountManagerImpl accountManager){
+	public StockGameCommandProcessor(AccountManagerImpl accountManager, StockPriceProvider provider){
 		manager = accountManager;
+		this.provider = provider;
 		reader = new BufferedReader(new InputStreamReader(System.in));
 		writer = new PrintWriter(System.out);
 	}
@@ -37,17 +40,18 @@ public class StockGameCommandProcessor {
 	public void process(){
 		CommandScanner scanner = new CommandScanner(StockGameCommandType.values(), reader);
 		
-		//Main loop
-		while(true){
-			CommandDescriptor commandDescriptor = new CommandDescriptor();
+		try{
 			
-			commandDescriptor = scanner.commandLine2CommandDescriptor(commandDescriptor);
+			//Main loop
+			do{
+				CommandDescriptor commandDescriptor = new CommandDescriptor();
+				
+				commandDescriptor = scanner.commandLine2CommandDescriptor(commandDescriptor);
+				
+				Object[] params = commandDescriptor.getParams();
+				
+				StockGameCommandType commandType = (StockGameCommandType)commandDescriptor.getCommandType();
 			
-			Object[] params = commandDescriptor.getParams();
-			
-			StockGameCommandType commandType = (StockGameCommandType)commandDescriptor.getCommandType();
-			
-			try{
 				switch(commandType){
 				case EXIT:
 					writer.println("Bye");
@@ -67,20 +71,29 @@ public class StockGameCommandProcessor {
 					manager.buyShares((String)params[0], (String)params[1], (int)params[2]);
 					writer.println("Done");
 					break;
+				case SELLSHARE:
+					writer.println("Attempting to buy share...");
+					manager.sellShare((String)params[0], (String)params[1], (int)params[2]);
+					writer.println("Done");
+					break;
 				case LISTPLAYERS:
-					writer.println(manager.playerList());
+					writer.println(manager.playerList().replaceFirst("\n\n", "\n"));
+					break;
+				case LISTSHARES:
+					writer.println(provider.shareInfo());
 					break;
 				default:
 					writer.println("Command not found");
 					break;
 				}
-			}catch(GameException e){
-				handleGameException(e);
-			}catch(GameRuntimeException e){
-				handleGameRuntimeException(e);
-			};
-			
-		writer.flush();
-		}
+				writer.flush();
+				
+			}while(true);
+		
+		}catch(GameException e){
+			handleGameException(e);
+		}catch(GameRuntimeException e){
+			handleGameRuntimeException(e);
+		};
 	}
 }
