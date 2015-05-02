@@ -6,6 +6,7 @@ import java.io.IOException;
 import prog.interfaces.CommandTypeInfo;
 import prog.ui.CommandDescriptor;
 import prog.exception.ObjectNotFoundException;
+import prog.exception.NotEnoughArgumentsException;
 
 public class CommandScanner {
 	BufferedReader reader;
@@ -50,12 +51,18 @@ public class CommandScanner {
 		Object[] castParams = new Object[paramType.length];
 		int j = 0;
 		
-		if(paramType[0] == null){
+		if(paramType.length == 0 || paramType[0] == null){
+			Class<?>[] p = {null};
+			paramType = p;
+			
 			container.setParams(castParams);
 			return container;
 		}
 		
-//		System.out.println("ParamType length: " + paramType.length);
+		if(paramType.length+1 > args.length){
+			//Not enough arguments!
+			throw new NotEnoughArgumentsException("Invalid number of arguments. Expected " + paramType.length + " got " + (args.length-1));
+		}
 		
 		for(Class element : paramType){
 			Object obj = null;
@@ -63,9 +70,6 @@ public class CommandScanner {
 				//Try explicitly casting (element)object
 				obj = element.cast(element.newInstance());
 				obj = args[j+1];
-				
-//				System.out.println(j + ". Class: " + obj.getClass());
-//				System.out.println(j + ". Data:  " + obj);
 			}catch(IllegalAccessException e){
 				//Private or protected constructor, probably singleton
 			}catch(InstantiationException e){

@@ -3,6 +3,8 @@ package prog.ui.console;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import prog.core.AccountManagerImpl;
 import prog.ui.CommandScanner;
@@ -10,90 +12,101 @@ import prog.core.enumerator.StockGameCommandType;
 import prog.ui.CommandDescriptor;
 import prog.exception.GameException;
 import prog.exception.GameRuntimeException;
-import prog.core.provider.*;
+import prog.exception.ObjectNotFoundException;
 
 public class StockGameCommandProcessor {
 	private AccountManagerImpl manager;
-	private StockPriceProvider provider;
 	private BufferedReader reader;
 	private PrintWriter writer;
+	private StockGameCommandType commandType;
 	
-	public StockGameCommandProcessor(AccountManagerImpl accountManager, StockPriceProvider provider){
+	public StockGameCommandProcessor(AccountManagerImpl accountManager){
 		manager = accountManager;
-		this.provider = provider;
 		reader = new BufferedReader(new InputStreamReader(System.in));
 		writer = new PrintWriter(System.out);
 	}
 	
 	private void handleGameException(GameException e){
 		writer.println(e.getMessage());
-		writer.flush();
 		process();
 	}
 	
 	private void handleGameRuntimeException(GameRuntimeException e){
 		writer.println(e.getMessage());
+		process();
+	}
+	
+	private void handleNoSuchMethodException(NoSuchMethodException e){
+		writer.println(e.getMessage());
+		process();
+	}
+	
+	private void exit(){
+		writer.print("Bye");
 		writer.flush();
+		System.exit(0);
+	}
+	
+	private void help(){
+		writer.println(commandType.getHelpText());
 		process();
 	}
 	
 	public void process(){
 		CommandScanner scanner = new CommandScanner(StockGameCommandType.values(), reader);
 		
-		try{
-			
 			//Main loop
 			do{
+				writer.flush();
 				CommandDescriptor commandDescriptor = new CommandDescriptor();
 				
-				commandDescriptor = scanner.commandLine2CommandDescriptor(commandDescriptor);
+				try{
+					commandDescriptor = scanner.commandLine2CommandDescriptor(commandDescriptor);
+				}catch(GameRuntimeException e){
+					writer.println("Executing command...");
+					handleGameRuntimeException(e);
+				}				
 				
-				Object[] params = commandDescriptor.getParams();
+				commandType = (StockGameCommandType)commandDescriptor.getCommandType();
+				writer.println("Executing command...");
 				
-				StockGameCommandType commandType = (StockGameCommandType)commandDescriptor.getCommandType();
-			
-				switch(commandType){
-				case EXIT:
-					writer.println("Bye");
-					writer.flush();
-					System.exit(0);
-					break;
-				case HELP:
-					writer.println(commandType.getHelpText());
-					break;
-				case CREATEPLAYER:
-					writer.println("Attempting to create player...");
-					manager.createPlayer((String)params[0]);
-					writer.println("Done");
-					break;
-				case BUYSHARE:
-					writer.println("Attempting to buy share...");
-					manager.buyShares((String)params[0], (String)params[1], (int)params[2]);
-					writer.println("Done");
-					break;
-				case SELLSHARE:
-					writer.println("Attempting to buy share...");
-					manager.sellShare((String)params[0], (String)params[1], (int)params[2]);
-					writer.println("Done");
-					break;
-				case LISTPLAYERS:
-					writer.println(manager.playerList().replaceFirst("\n\n", "\n"));
-					break;
-				case LISTSHARES:
-					writer.println(provider.shareInfo());
-					break;
-				default:
-					writer.println("Command not found");
-					break;
+				try{
+					if(!commandType.getMethodName().equals("")){
+						//Invoke methods from AccountManagerImpl
+						Method m = manager.getClass().getDeclaredMethod(commandType.getMethodName(), commandType.getParamTypes());
+						Object o = m.invoke(manager, commandDescriptor.getParams());
+						
+						if(o != null){
+							writer.println(o);
+							writer.flush();
+						}
+					}else{
+						//Invoke methods from StockGameCommandProcessor
+						Method m = this.getClass().getDeclaredMethod(commandType.getName());
+						m.invoke(this);
+					}
+				}catch(NoSuchMethodException e){
+					handleNoSuchMethodException(e);
+				}catch(IllegalAccessException e){
+					e.printStackTrace();
+				}catch(InvocationTargetException e){
+					//Identify the cause of the InvocationTargetException and re-throw it
+					try{
+						if(e.getCause() instanceof GameException){
+							throw new GameException(e.getCause().getMessage());
+						}else if(e.getCause() instanceof GameRuntimeException){
+							throw new GameRuntimeException(e.getCause().getMessage());
+						}
+					}catch(GameException ex){
+						handleGameException(ex);
+					}catch(GameRuntimeException ex){
+						handleGameRuntimeException(ex);
+					}
 				}
-				writer.flush();
 				
-			}while(true);
-		
-		}catch(GameException e){
-			handleGameException(e);
-		}catch(GameRuntimeException e){
-			handleGameRuntimeException(e);
-		};
+				writer.println("Done");
+				
+			}while(true);	
 	}
+	
 }

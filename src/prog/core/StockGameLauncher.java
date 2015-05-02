@@ -9,7 +9,7 @@ public class StockGameLauncher {
 	private static StockPriceProvider provider = new RandomStockPriceProvider(8);
 	
 	private static AccountManagerImpl manager = new AccountManagerImpl(provider);
-	private static StockGameCommandProcessor commandProcessor = new StockGameCommandProcessor(manager, provider);
+	private static StockGameCommandProcessor commandProcessor = new StockGameCommandProcessor(manager);
 	
 	public static void main(String[] args){
 		//Open ticker
