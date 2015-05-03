@@ -207,10 +207,11 @@ public class AccountManagerImpl implements AccountManager {
 	}
 	
 	//Add a player agent (trade bot)
-	public void addPlayerAgent(String playerName, long minTradeDiff){
+	public void addPlayerAgent(String playerName){
 		Player player = getPlayer(playerName);
-		PlayerAgent agent = new PlayerAgent(this, player, provider, minTradeDiff);
+		PlayerAgent agent = new PlayerAgent(player, provider, this);
 		player.setPlayerAgent(agent);
+		player.getPlayerAgent().startTrading();
 	}
 	
 	

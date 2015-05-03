@@ -132,7 +132,15 @@ public class ShareDepositAccount extends Asset{
    
    //Get the number of shares in share item via the shares name
    public int numberOfShares(String shareName){
-	   return getShareItem(shareName).getQuantity();
+	   int n = 0;;
+	   
+	   try{
+		   n = getShareItem(shareName).getQuantity();
+	   }catch (ObjectNotFoundException e){
+		   return n;
+	   }
+	   
+	   return n;
    }
    
 }

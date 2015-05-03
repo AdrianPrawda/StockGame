@@ -3,118 +3,127 @@
 package prog.core;
 
 import java.util.TimerTask;
+import java.util.Random;
 
+import prog.interfaces.Agent;
 import prog.core.provider.StockPriceProvider;
 import prog.exception.FundsExceededException;
 import prog.exception.NotEnoughSharesException;
 import prog.interfaces.AccountManager;
 import prog.exception.ObjectNotFoundException;
 
-public class PlayerAgent{
-	private GlobalTimer timer = GlobalTimer.getInstance();
-	private TimerTask task;
-	private StockPriceProvider provider;
-	private long delay;
-	private long period;
-	private long[] tendency;
-	private Share[] snapshot;
-	private long minTradeDiff;
-	private Player player;
-	private AccountManager manager;
+public class PlayerAgent implements Agent{
+	GlobalTimer timer = GlobalTimer.getInstance();
+	StockPriceProvider provider;
+	TimerTask task;
+	Player player;
+	AccountManager manager;
 	
-	public PlayerAgent(AccountManager manager, Player player, StockPriceProvider provider, long minTradeDiff, long delay, long period){
+	private final long DELAY;
+	private final long PERIOD;
+	
+	public PlayerAgent(Player player, StockPriceProvider provider, AccountManager manager){
 		this.provider = provider;
-		this.delay = delay;
-		this.period = period;
-		snapshot = provider.getAllSharesAsSnapshot();
-		tendency = new long[snapshot.length];
-		this.minTradeDiff = minTradeDiff;
 		this.player = player;
 		this.manager = manager;
+		DELAY = 500;
+		PERIOD = 1000;
 	}
 	
-	public PlayerAgent(AccountManager manager, Player player, StockPriceProvider provider, long minTradeDiff){
-		this(manager, player, provider, minTradeDiff, 0, 2000);
-	}
-	
-	public void startTrading(){
+	@Override
+	//Start agent
+	public void startTrading() {
+		//Create new task and save reference
 		task = new TimerTask(){
 			public void run(){
 				try {
 					trade();
-				} catch (NotEnoughSharesException e) {
-					//Log
-				} catch (FundsExceededException e) {
-					//Log
+				} catch (FundsExceededException | NotEnoughSharesException e) {
+					//Bot tried to sell/buy things that he shouldn't have
+					System.out.println("I did it, mum!");
 				}
 			}
 		};
-		
-		timer.scheduleAtFixedRate(task, delay, period);
+		//Schedule task
+		timer.schedule(task, DELAY, PERIOD);
 	}
-	
-	//Dismiss player agent
-	public void dismiss(){
+
+	@Override
+	//Dismiss agent
+	public void dismiss() {
 		//Don't purge because of performance issues
 		if(task != null){
 			task.cancel();
 			task = null;
 		}else{
 			throw new ObjectNotFoundException("Agent can't be dismissed if it hasn't been started yet!");
-//			throw new NullPointerException("TimerTask can't be canceled if it hasn't been sheduled yet!");
 		}
 	}
-	
-	public boolean isTrading(){
+
+	@Override
+	//If agent is trading returns true
+	public boolean isTrading() {
 		if(task == null){
 			return false;
 		}
 		return true;
 	}
 	
-	private void trade() throws NotEnoughSharesException, FundsExceededException{
-		//Get updated share rate
-		Share[] temp = provider.getAllSharesAsSnapshot();
-		int buy = -1;
-		int sell = -1;
+	private void trade() throws FundsExceededException, NotEnoughSharesException{
+		Random rng = new Random();
+		Share[] snapshot = provider.getAllSharesAsSnapshot();
+		boolean buying = rng.nextBoolean();
 		
-		for(int i=0; i<snapshot.length; i++){
-			tendency[i] += temp[i].getPrice() - snapshot[i].getPrice();
-			if(tendency[i] <= (minTradeDiff*-1)){
-				//Check if selling value is the best
-				if(buy >= 0 && tendency[i] < tendency[sell] && player.getShareDepositAccount().numberOfShares(snapshot[i].getName()) > 0){
-					sell = i;
-				}else if(sell > 0){
-					sell = i;
-				}
-			}else if(tendency[i] >= minTradeDiff){
-				//Check if buying value is the best
-				if(buy >= 0 && tendency[i] > tendency[buy]){
-					buy = i;
-				}else if(buy > 0){
-					buy = i;
+		//Buy if true, sell if false
+		if(buying){
+//			System.out.println("I feel like buying stuff now");
+			Share s = snapshot[rng.nextInt(snapshot.length)];
+			//Calculate how many shares can be bought
+			int max = (int)(player.getCashAccount().value() / s.getPrice());
+			//Buy shares
+			if(max >= 1){
+				int r = rng.nextInt(max)+1;
+//				System.out.println("I bought " + s.getName() + " " + r + " times");
+				manager.buyShares(player.getName(), s.getName(), r);
+			}
+		}else{
+//			System.out.println("I feel like selling stuff now");
+			Share[] ownedShares = new Share[snapshot.length];
+			ShareDepositAccount sda = player.getShareDepositAccount();
+			
+			//Get shares owned by the player
+			int j=0;
+			for(int i=0; i<snapshot.length; i++){
+				if(sda.numberOfShares(snapshot[i].getName()) >= 1){
+					ownedShares[j] = snapshot[i];
+					j += 1;
 				}
 			}
+			
+			//Return if player doesn't own shares
+			if(j <= 0){
+				return;
+			}
+			
+			//Shrink array
+			Share[] b = new Share[j];
+			for(int i=0; i<b.length; i++){
+				b[i] = ownedShares[i];
+			}
+			ownedShares = b;
+			
+			//Chose random share to sell
+			Share s = ownedShares[rng.nextInt(ownedShares.length)];
+			
+			//Sell shares
+			int q = sda.numberOfShares(s.getName());
+			int r = rng.nextInt(q)+1;
+			
+//			System.out.println("I sold " + s.getName() + " " + r + " times");
+			manager.sellShare(player.getName(), s.getName(), r);
 		}
 		
-		if(buy >= 0){
-			buyShares(buy, player.getCashAccount().value()/2);
-		}
-		if(sell >= 0){
-			sellShares(sell, player.getShareDepositAccount().numberOfShares(snapshot[sell].getName()));
-		}
-		
-	}
-	
-	private void sellShares(int i, int maxShares) throws NotEnoughSharesException{
-		manager.sellShare(player.getName(), snapshot[i].getName(), maxShares);
-		tendency[i] = 0;
-	}
-	
-	private void buyShares(int i, long maxMoney) throws FundsExceededException{
-		int quantity = (int)(maxMoney / snapshot[i].getPrice());
-		manager.buyShares(player.getName(), snapshot[i].getName(), quantity);
-		tendency[i] = 0;
+		System.out.flush();
 	}
 
 }

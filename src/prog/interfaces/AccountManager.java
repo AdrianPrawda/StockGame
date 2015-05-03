@@ -41,8 +41,8 @@ public interface AccountManager {
 	public long SharePriceDifference(String player, String shareName);
 	
 	//Ad a new player agent (trade bot)
-	@AsCommand(commandName = "na", description = "<player> <maxTradeDifference> * initilaize a bot that will automatically trade for the player")
-	public void addPlayerAgent(String playerName, long maxTradeDiff);
+	@AsCommand(commandName = "sa", description = "<player> * initilaize a bot that will automatically trade for the player")
+	public void addPlayerAgent(String playerName);
 	
 	//Dismiss a player agent (trade bot)
 	@AsCommand(commandName = "da", description = "<player> * dismiss trading bot")
