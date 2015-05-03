@@ -28,7 +28,7 @@ public class CashAccount extends Asset{
 	   
 	   long price = share.getPrice() * quantity;
 	   
-	   if(balance > price){
+	   if(balance < price){
 		   //Not enough money!
 		   throw new FundsExceededException("Not enough funds available");
 	   }
@@ -45,9 +45,9 @@ public class CashAccount extends Asset{
 	   balance += (share.getPrice() * quantity);
    }
    
-   //For testing purposes
-   public void addCash(long cash){
-	   balance += cash;
-   }
+//   //For testing purposes
+//   public void addCash(long cash){
+//	   balance += cash;
+//   }
    
 }

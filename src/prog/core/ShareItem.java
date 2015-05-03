@@ -12,6 +12,7 @@ public class ShareItem extends Asset{
       quantity = 0;
       purchaseValue = 0;
       REF = reference;
+      name = REF.getName();
    }
    
    public int getQuantity(){

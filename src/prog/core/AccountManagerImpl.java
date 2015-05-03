@@ -195,16 +195,24 @@ public class AccountManagerImpl implements AccountManager {
 		
 		return out;
 	}
-	
-	//FOR TESTING PURPOSES ONLY - Add money to a players account
-	public void addPlayerMoney(String playerName, long cash){
-		//Check if player exists
-		if(!isPlayerListed(playerName)){
-			//If not, throw exception
-			throw new ObjectNotFoundException(playerName + " not found");
-		}
+
+	@Override
+	public long SharePriceDifference(String player, String shareName) {
+		Player p = getPlayer(player);
+		Share s = getShare(shareName);
 		
-		getPlayer(playerName).getCashAccount().addCash(cash);
+		return p.getShareDepositAccount().sharePriceDifference(s, shareName);
 	}
+	
+//	//FOR TESTING PURPOSES ONLY - Add money to a players account
+//	public void addPlayerMoney(String playerName, long cash){
+//		//Check if player exists
+//		if(!isPlayerListed(playerName)){
+//			//If not, throw exception
+//			throw new ObjectNotFoundException(playerName + " not found");
+//		}
+//		
+//		getPlayer(playerName).getCashAccount().addCash(cash);
+//	}
 
 }

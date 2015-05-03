@@ -9,6 +9,19 @@ public class ShareDepositAccount extends Asset{
       this.name = name;
    }
    
+   public long sharePriceDifference(Share share, String shareName){
+	   ShareItem s = null;
+	   
+	   try{
+		   s = getShareItem(shareName);
+	   }catch(ObjectNotFoundException e){
+		   throw new ObjectNotFoundException("Player does not own a share from " + shareName);
+	   }
+	   long purchasePricePerShare = s.getPurchaseValue()/s.getQuantity();
+	   
+	   return share.getPrice() - purchasePricePerShare;
+   }
+   
    //Get value of all shares
    public long value(){
       int v = 0;
