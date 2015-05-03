@@ -1,3 +1,5 @@
+//NEEDS TO BE REVIEWED, NEEDS INTERFACE
+
 package prog.core;
 
 import java.util.TimerTask;

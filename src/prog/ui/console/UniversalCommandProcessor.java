@@ -19,9 +19,6 @@ public class UniversalCommandProcessor {
 	private CommandTypeInfo[] commandTypes;
 	private BufferedReader reader;
 	private PrintWriter writer;
-	
-	private final String HELP = "help";
-	private final String EXIT = "exit";
 
 	public UniversalCommandProcessor(Object target, Class<?> interf){
 		this.target = target;
@@ -30,10 +27,12 @@ public class UniversalCommandProcessor {
 		reader = new BufferedReader(new InputStreamReader(System.in));
 	}
 	
+	//Help command, always available
 	@AsCommand(commandName = "help", description = "* list all commands")
 	public void help(){
 		String s = "";
 		
+		//Get help text of all registered commands
 		for(CommandTypeInfo commandType : commandTypes){
 			s += (commandType.getName() + " " + commandType.getHelpText() + "\n");
 		}
@@ -42,6 +41,7 @@ public class UniversalCommandProcessor {
 		process();
 	}
 	
+	//Exit command, always available
 	@AsCommand(commandName = "exit", description = "* exit program")
 	public void exit(){
 		writer.print("Bye");
@@ -49,23 +49,28 @@ public class UniversalCommandProcessor {
 		System.exit(0);
 	}
 	
+	//Generates a list of CommandTypeInfo Objects from a target (for the methods) and a source class
 	private CommandTypeInfo[] generateCommandTypeInfoObjectsFromSource(Object target, Class<?> source){
+		//Get all methods declared by the source
 		Method[] methods = source.getDeclaredMethods();
-		CommandTypeInfo[] cmdTypeInfos = new CommandTypeInfo[methods.length+2];
+		//Create a buffer that is large enough to theoretically save as many commandTypeInfos as there are defined methods
+		CommandTypeInfo[] cmdTypeInfos = new CommandTypeInfo[methods.length];
 		
 		int p=0;
-		
+		//Get all methods
 		for(Method method : methods){
+			//Check if the method has an AsCommand annotation. If not the value of a will be null
 			AsCommand a = method.getAnnotation(AsCommand.class);
 			if(a != null){
 				//Command found!
-//				System.out.println("Command Name: \"" + a.commandName() + "\" Description: \"" + a.description() + "\" Method: \"" + method.getName() + "\" Target: \"" + target.getClass() + "\" ParamTypes: \"" + method.getParameterCount() + "\"");
+				//Generate new CommandType
 				CommandType c = new CommandType(a.commandName(),a.description(),method,target,method.getParameterTypes());
 				cmdTypeInfos[p] = c;
 				p += 1;
 			}
 		}
 		
+		//Resize array
 		CommandTypeInfo[] out = new CommandTypeInfo[p];
 		for(int j=0; j<out.length; j++){
 			out[j] = cmdTypeInfos[j];
@@ -75,9 +80,12 @@ public class UniversalCommandProcessor {
 	}
 	
 	private void generateCommandTypeInfoObjects(){
+		//Generate the type info of all always available commands (In short: all commands defined in the UniversalCommandProcessor class)
 		CommandTypeInfo[] std = generateCommandTypeInfoObjectsFromSource(this, this.getClass());
+		//Generate type info
 		CommandTypeInfo[] add = generateCommandTypeInfoObjectsFromSource(target, interf);
 		
+		//Merge those two arrays
 		CommandTypeInfo[] out = new CommandTypeInfo[std.length + add.length];
 		for(int i=0; i<std.length; i++){
 			out[i] = std[i];
@@ -86,12 +94,14 @@ public class UniversalCommandProcessor {
 			out[j+std.length] = add[j];
 		}
 		
+		//Save resulting array
 		commandTypes = out;
 	}
 	
 	public void process(){
+		//Generate type info before entering the main loop
 		generateCommandTypeInfoObjects();
-		
+		//Initialize command scanner
 		CommandScanner commandScanner = new CommandScanner(commandTypes, reader);
 		
 		//Main loop
@@ -100,6 +110,7 @@ public class UniversalCommandProcessor {
 			Object result = null;
 			
 			try{
+				//Create container (information about the used command is stored here)
 				Command command = new Command();
 				commandScanner.commandLine2CommandDescriptor(command);
 			
@@ -109,6 +120,7 @@ public class UniversalCommandProcessor {
 			
 				result = command.execute();
 			}catch (GameRuntimeException e) {
+				//Exceptions thrown within the commandLine2CommandDescriptor method
 				handleGameRuntimeException(e);
 			}catch (IllegalAccessException e){
 				e.printStackTrace();
@@ -116,9 +128,12 @@ public class UniversalCommandProcessor {
 				e.printStackTrace();
 			}catch (InvocationTargetException e){
 				//Identify the cause of the InvocationTargetException and re-throw it
+				//Thrown if the invoked method throws an exception
 				try{
+					//Thrown if the cause was a GameException
 					if(e.getCause() instanceof GameException){
 						throw new GameException(e.getCause().getMessage());
+					//Thrown if the cause was a GameRuntimeException
 					}else if(e.getCause() instanceof GameRuntimeException){
 						throw new GameRuntimeException(e.getCause().getMessage());
 					}
@@ -129,6 +144,7 @@ public class UniversalCommandProcessor {
 				};
 			};
 			
+			//Print result
 			if(result != null){
 				writer.println(result);
 			}
@@ -136,13 +152,17 @@ public class UniversalCommandProcessor {
 		}while(true);
 	}
 
+	//All GameRuntimeExceptions are handled here to make errors look better on the console
 	private void handleGameRuntimeException(GameRuntimeException e) {
 		writer.println(e.getMessage());
+		//Restart main loop
 		process();
 	}
 
+	//All GameExceptions are handled here to make errors look better on the console
 	private void handleGameException(GameException e) {
 		writer.println(e.getMessage());
+		//Restart main loop
 		process();
 	}
 }

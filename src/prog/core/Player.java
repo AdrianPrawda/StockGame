@@ -29,7 +29,9 @@ public class Player {
 		return agent;
 	}
 	
+	//Set new player agent
 	public void setPlayerAgent(PlayerAgent playerAgent){
+		//if a player agent already exists, dismiss it
 		if(agent != null){
 			agent.dismiss();
 		}

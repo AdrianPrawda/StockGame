@@ -20,14 +20,17 @@ public class CashAccount extends Asset{
 	   return ("[" + name + "] Balance: " + balance);
    }
    
+   //Withdraw funds
    public void withdraw(Share share, int quantity) throws FundsExceededException{
 	   //Check if quantity is negative
 	   if(quantity < 0){
 		   throw new InvalidNumberException("Quantity has to be positive");
 	   }
 	   
+	   //Calculate price
 	   long price = share.getPrice() * quantity;
 	   
+	   //Check if there is enough money on this account
 	   if(balance < price){
 		   //Not enough money!
 		   throw new FundsExceededException("Not enough funds available");
@@ -36,18 +39,15 @@ public class CashAccount extends Asset{
 	   balance -= price;
    }
    
+   //Deposit funds
    public void deposit(Share share, int quantity){
 	   //Check if quantity is negative
 	   if(quantity < 0){
 		   throw new InvalidNumberException("Quantity has to be positive");
 	   }
 	   
+	   //Calculate new balance
 	   balance += (share.getPrice() * quantity);
    }
-   
-//   //For testing purposes
-//   public void addCash(long cash){
-//	   balance += cash;
-//   }
    
 }

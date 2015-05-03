@@ -34,6 +34,7 @@ public class Share {
 	   return ("[" + NAME + "] Price: " + price);
    }
    
+   //Shares are equal is there price and name are equal
    public boolean equals(Object obj){
       //Check if this and the given object's class are equal
       if(obj.getClass().equals(this.getClass())){

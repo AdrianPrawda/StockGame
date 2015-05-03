@@ -3,6 +3,7 @@ package prog.ui;
 import prog.interfaces.CommandTypeInfo;
 
 public class CommandDescriptor {
+	//Defined by a CommandTypeInfo and a list of parameters
 	CommandTypeInfo cmdType;
 	Object[] params;
 	

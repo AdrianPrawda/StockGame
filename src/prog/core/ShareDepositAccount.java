@@ -3,20 +3,26 @@ package prog.core;
 import prog.exception.*;
 
 public class ShareDepositAccount extends Asset{
+	//Share items
    ShareItem[] shareItems = new ShareItem[0];
    
    public ShareDepositAccount(String name){
       this.name = name;
    }
    
+   
+   //Get difference between a share at the current price and a share that had already been bought
    public long sharePriceDifference(Share share, String shareName){
 	   ShareItem s = null;
 	   
 	   try{
 		   s = getShareItem(shareName);
 	   }catch(ObjectNotFoundException e){
+		   //Re-throw exception but change the error text
 		   throw new ObjectNotFoundException("Player does not own a share from " + shareName);
 	   }
+	   
+	   //Price difference is calculated
 	   long purchasePricePerShare = s.getPurchaseValue()/s.getQuantity();
 	   
 	   return share.getPrice() - purchasePricePerShare;
@@ -76,6 +82,7 @@ public class ShareDepositAccount extends Asset{
 		   throw new ObjectAlreadyExistsException("Share item " + shareItem.getName() + " already exists");
 	   }
 	   
+	   //Share item buffer
 	   ShareItem[] out = new ShareItem[shareItems.length+1];
 	   
 	   //Copy share items
@@ -88,6 +95,7 @@ public class ShareDepositAccount extends Asset{
 	   shareItems = out;
    }
    
+   //Create a new share item uniquely defined by the ref share
    private void addShareItem(Share ref){
 	   addShareItem(new ShareItem(ref));
    }
@@ -122,6 +130,7 @@ public class ShareDepositAccount extends Asset{
 	   }
    }
    
+   //Get the number of shares in share item via the shares name
    public int numberOfShares(String shareName){
 	   return getShareItem(shareName).getQuantity();
    }

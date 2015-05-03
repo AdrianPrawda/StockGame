@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import prog.interfaces.CommandTypeInfo;
 
 public class CommandType implements CommandTypeInfo {
+	//A command is defined by a name, a description, parameter types, a method and a target
 	String name;
 	String helpText;
 	Class<?>[] paramTypes;
