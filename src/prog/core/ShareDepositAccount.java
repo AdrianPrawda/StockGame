@@ -122,4 +122,8 @@ public class ShareDepositAccount extends Asset{
 	   }
    }
    
+   public int numberOfShares(String shareName){
+	   return getShareItem(shareName).getQuantity();
+   }
+   
 }

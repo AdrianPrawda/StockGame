@@ -204,6 +204,17 @@ public class AccountManagerImpl implements AccountManager {
 		return p.getShareDepositAccount().sharePriceDifference(s, shareName);
 	}
 	
+	public void addPlayerAgent(String playerName, long minTradeDiff){
+		Player player = getPlayer(playerName);
+		PlayerAgent agent = new PlayerAgent(this, player, provider, minTradeDiff);
+		player.setPlayerAgent(agent);
+	}
+	
+	public void dismissPlayerAgent(String playerName){
+		PlayerAgent agent = getPlayer(playerName).getPlayerAgent();
+		agent.dismiss();
+	}
+	
 //	//FOR TESTING PURPOSES ONLY - Add money to a players account
 //	public void addPlayerMoney(String playerName, long cash){
 //		//Check if player exists

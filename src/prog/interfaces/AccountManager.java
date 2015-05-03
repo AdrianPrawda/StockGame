@@ -30,5 +30,11 @@ public interface AccountManager {
 	
 	@AsCommand(commandName = "diff", description = "<player> <sharename> * get difference between purchase price and current selling price")
 	public long SharePriceDifference(String player, String shareName);
+	
+	@AsCommand(commandName = "na", description = "<player> <maxTradeDifference> * initilaize a bot that will automatically trade for the player")
+	public void addPlayerAgent(String playerName, long maxTradeDiff);
+	
+	@AsCommand(commandName = "da", description = "<player> * dismiss trading bot")
+	public void dismissPlayerAgent(String playerName);
 
 }
