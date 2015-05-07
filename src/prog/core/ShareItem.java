@@ -44,6 +44,11 @@ public class ShareItem extends Asset{
 	   return ("[" + name + "] Quantity: " + getQuantity() + " Value: " + value());
    }
    
+   public Share getShare()
+   {
+	   return REF;
+   }
+   
    //Add shares
    public void addShares(Share share, int quantity){
 	   //Check if given share is compatible with this share item

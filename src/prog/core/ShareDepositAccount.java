@@ -10,6 +10,19 @@ public class ShareDepositAccount extends Asset{
       this.name = name;
    }
    
+   //Get a copy of all shares
+	public Share[] getAllSharesAsSnapshot(){
+		//Create buffer
+		Share[] copy = new Share[shareItems.length];
+		
+		//Create deep copy
+		for(int i=0; i<copy.length; i++){
+			copy[i] = new Share(shareItems[i].getShare());
+		}
+		
+		return copy;
+	}
+   
    
    //Get difference between a share at the current price and a share that had already been bought
    public long sharePriceDifference(Share share, String shareName){

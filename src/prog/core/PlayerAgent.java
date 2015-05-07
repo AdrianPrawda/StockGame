@@ -88,29 +88,18 @@ public class PlayerAgent implements Agent{
 			}
 		}else{
 //			System.out.println("I feel like selling stuff now");
-			Share[] ownedShares = new Share[snapshot.length];
+
 			ShareDepositAccount sda = player.getShareDepositAccount();
 			
 			//Get shares owned by the player
-			int j=0;
-			for(int i=0; i<snapshot.length; i++){
-				if(sda.numberOfShares(snapshot[i].getName()) >= 1){
-					ownedShares[j] = snapshot[i];
-					j += 1;
-				}
-			}
+			Share[] ownedShares = sda.getAllSharesAsSnapshot();
+			
 			
 			//Return if player doesn't own shares
-			if(j <= 0){
+			if(ownedShares.length <= 0){
 				return;
 			}
 			
-			//Shrink array
-			Share[] b = new Share[j];
-			for(int i=0; i<b.length; i++){
-				b[i] = ownedShares[i];
-			}
-			ownedShares = b;
 			
 			//Chose random share to sell
 			Share s = ownedShares[rng.nextInt(ownedShares.length)];
