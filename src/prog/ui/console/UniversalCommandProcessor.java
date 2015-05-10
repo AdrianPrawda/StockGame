@@ -114,7 +114,6 @@ public class UniversalCommandProcessor {
 				Command command = new Command();
 				commandScanner.commandLine2CommandDescriptor(command);
 			
-				writer.println("Executing command...");
 				result = null;
 			
 			

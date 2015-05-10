@@ -1,10 +1,14 @@
 package prog.core;
 
+
 import prog.exception.*;
 import prog.core.provider.*;
 import prog.interfaces.AccountManager;
 
 public class AccountManagerImpl implements AccountManager {
+	
+	
+	private AccountManager proxy;
 	
 	//Prices of stocks are here
 	private StockPriceProvider provider;
@@ -19,7 +23,21 @@ public class AccountManagerImpl implements AccountManager {
 		players = new Player[0];
 		this.provider = provider;
 		shares = provider.getAllSharesAsSnapshot();
+
 	}
+	
+	
+	//// Proxy Methoden notwendig, damit auch Agent-Aktionen geloggt werden können; evtl. optimierungsbedürftig
+	public void setProxy(AccountManager proxy)
+	{
+		this.proxy = proxy;
+	}
+	
+	public AccountManager getProxy()
+	{
+		return this.proxy;
+	}
+	
 	
 	//Update share cache
 	private void updateShareCache(){
@@ -97,12 +115,8 @@ public class AccountManagerImpl implements AccountManager {
 			throw new InvalidNumberException("Can't buy negative shares");
 		}
 		
-		//Remove funds before removing shares because of the possibility of an needed exception handling
-		try{
-			player.getCashAccount().withdraw(share, quantity);
-		}catch(FundsExceededException e){
-			throw e;
-		}
+		//Remove funds before removing shares because of the possibility of an needed exception handling	
+		player.getCashAccount().withdraw(share, quantity);
 		//Add shares
 		player.getShareDepositAccount().addShares(share, quantity);
 	}
@@ -122,11 +136,8 @@ public class AccountManagerImpl implements AccountManager {
 		}
 		
 		//Try to sell shares first (Exception handling!)
-		try{
-			player.getShareDepositAccount().removeShares(share.getName(), quantity);
-		}catch(NotEnoughSharesException e){
-			throw e;
-		}
+		player.getShareDepositAccount().removeShares(share.getName(), quantity);
+
 		
 		//Deposit money on player's account
 		player.getCashAccount().deposit(share, quantity);
@@ -195,6 +206,11 @@ public class AccountManagerImpl implements AccountManager {
 		
 		return out;
 	}
+	
+	public Player[] getPlayers()
+	{
+		return players;
+	}
 
 	@Override
 	//Get price difference of a given share between now and and the time of purchase
@@ -209,7 +225,7 @@ public class AccountManagerImpl implements AccountManager {
 	//Add a player agent (trade bot)
 	public void addPlayerAgent(String playerName){
 		Player player = getPlayer(playerName);
-		PlayerAgent agent = new PlayerAgent(player, provider, this);
+		PlayerAgent agent = new PlayerAgent(player, provider, this.getProxy());
 		player.setPlayerAgent(agent);
 		player.getPlayerAgent().startTrading();
 	}
@@ -220,5 +236,7 @@ public class AccountManagerImpl implements AccountManager {
 		PlayerAgent agent = getPlayer(playerName).getPlayerAgent();
 		agent.dismiss();
 	}
+
+
 
 }

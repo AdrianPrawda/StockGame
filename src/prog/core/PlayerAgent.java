@@ -77,6 +77,7 @@ public class PlayerAgent implements Agent{
 		//Buy if true, sell if false
 		if(buying){
 //			System.out.println("I feel like buying stuff now");
+
 			Share s = snapshot[rng.nextInt(snapshot.length)];
 			//Calculate how many shares can be bought
 			int max = (int)(player.getCashAccount().value() / s.getPrice());
@@ -92,6 +93,7 @@ public class PlayerAgent implements Agent{
 			ShareDepositAccount sda = player.getShareDepositAccount();
 			
 			//Get shares owned by the player
+			//// Optimiert
 			Share[] ownedShares = sda.getAllSharesAsSnapshot();
 			
 			
@@ -106,7 +108,7 @@ public class PlayerAgent implements Agent{
 			
 			//Sell shares
 			int q = sda.numberOfShares(s.getName());
-			int r = rng.nextInt(q)+1;
+			int r = rng.nextInt(q);
 			
 //			System.out.println("I sold " + s.getName() + " " + r + " times");
 			manager.sellShare(player.getName(), s.getName(), r);

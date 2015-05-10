@@ -2,7 +2,9 @@ package prog.interfaces;
 
 import prog.exception.FundsExceededException;
 import prog.exception.NotEnoughSharesException;
+import prog.core.AccountManagerProxy;
 import prog.core.Asset;
+import prog.core.Player;
 import prog.ui.AsCommand;
 
 public interface AccountManager {
@@ -47,5 +49,9 @@ public interface AccountManager {
 	//Dismiss a player agent (trade bot)
 	@AsCommand(commandName = "da", description = "<player> * dismiss trading bot")
 	public void dismissPlayerAgent(String playerName);
+	
+	public Player[] getPlayers();
+
+	public void setProxy(AccountManager accountManagerProxy);
 
 }
