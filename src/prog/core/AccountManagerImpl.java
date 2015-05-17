@@ -228,19 +228,22 @@ public class AccountManagerImpl implements AccountManager {
 
 
 	@Override
-	public void getTransactions(String playerName) {
+	public String getTransactions(String playerName) {
 		Player player = getPlayer(playerName); 
+		String out = "";
 		
 		for ( Transaction t : player.getTransactions() )
 		{
-			System.out.println(t);
+			out += t.toString();
 		}
+		
+		return out;
 		
 	}
 
 
 	@Override
-	public void getTransactions(String playerName, String orderBy1) 
+	public String getTransactions(String playerName, String orderBy1) 
 	{
 		Player player = getPlayer(playerName); 
 		
@@ -250,16 +253,20 @@ public class AccountManagerImpl implements AccountManager {
 	    
 	    transactions.sort(cmp);
 	    
+	    String out = "";
+	    
 	    for ( Transaction t : transactions )
 		{
-			System.out.println(t);
+	    	out += t.toString();
 		}
+	    
+	    return out;
 		
 	}
 
 
 	@Override
-	public void getTransactions(String playerName, String orderBy1, String orderBy2) 
+	public String getTransactions(String playerName, String orderBy1, String orderBy2) 
 	{
 		Player player = getPlayer(playerName); 
 		
@@ -269,10 +276,14 @@ public class AccountManagerImpl implements AccountManager {
 	    
 	    transactions.sort(cmp);
 	    
+	    String out = "";
+	    
 	    for ( Transaction t : transactions )
 		{
-			System.out.println(t);
+	    	out += t.toString();
 		}
+	    
+	    return out;
 		
 	}
 

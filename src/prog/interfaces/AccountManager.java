@@ -54,15 +54,15 @@ public interface AccountManager {
 	
 	//Get Transactions
 	@AsCommand(commandName = "gt", description = "<player> * get Transaction")
-	public void getTransactions(String playerName);
+	public String getTransactions(String playerName);
 	
 	//Get Transactions
 	@AsCommand(commandName = "gt", description = "<player> <order1> * get Transaction")
-	public void getTransactions(String playerName, String orderBy1);
+	public String getTransactions(String playerName, String orderBy1);
 	
 	//Get Transactions
 	@AsCommand(commandName = "gt", description = "<player> <order1> <order2> * get Transaction")
-	public void getTransactions(String playerName, String orderBy1, String orderBy2);
+	public String getTransactions(String playerName, String orderBy1, String orderBy2);
 	
 	public HashMap<String, Player> getPlayers();
 

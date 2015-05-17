@@ -1,7 +1,10 @@
 package prog.core;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 
 import prog.exception.InvalidArgumentException;
 
@@ -39,14 +42,17 @@ public class Transaction
 	public String toString()
 	{
 		String s = new String();
+		Date d = new Date(time);
+		Format format = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+		String date = format.format(d);
 		
-		s += "[" + time + "]\t";
+		s += "[" + date + "]\t";
 		s += (type == Type.BUY) ? "BUY" : "SELL";
 		s += "\t"+ share.getName();
 		s += "\t"+ amount;
 		s += "\t";
 		s += (type == Type.BUY) ? "-" : "+";
-		s += ((float) this.money/100) + " €";
+		s += ((float) this.money/100) + " €\n";
 		
 		
 		
