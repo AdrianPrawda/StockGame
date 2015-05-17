@@ -27,7 +27,7 @@ public class AccountManagerImpl implements AccountManager {
 	}
 	
 	
-	//// Proxy Methoden notwendig, damit auch Agent-Aktionen geloggt werden kÃ¶nnen; evtl. optimierungsbedÃ¼rftig
+	//// Proxy Methoden notwendig, damit auch Agent-Aktionen geloggt werden können; evtl. optimierungsbedürftig
 	public void setProxy(AccountManager proxy)
 	{
 		this.proxy = proxy;

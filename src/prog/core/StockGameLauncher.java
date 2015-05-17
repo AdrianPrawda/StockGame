@@ -16,6 +16,8 @@ public class StockGameLauncher {
 	private static UniversalCommandProcessor commandProcessor; 
 	
 	public static void main(String[] args) throws SecurityException, IOException{
+		System.setProperty("java.util.logging.config.file", "logging.properties");
+		
 		AccountManagerProxy handler = new AccountManagerProxy(accountManager);
 		AccountManager manager = (AccountManager) Proxy.newProxyInstance(
 			AccountManager.class.getClassLoader(),

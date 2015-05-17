@@ -1,4 +1,4 @@
-package formatter;
+package prog.formatter;
 
 import java.util.logging.Formatter;
 import java.util.logging.Level;

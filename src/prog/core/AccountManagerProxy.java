@@ -9,8 +9,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import formatter.FileFormatter;
-import formatter.InvocationFormatter;
+import prog.formatter.FileFormatter;
+import prog.formatter.InvocationFormatter;
 import prog.interfaces.AccountManager;
 import prog.ui.AsCommand;
 
@@ -22,14 +22,14 @@ public class AccountManagerProxy implements InvocationHandler
     private AccountManager account;
     
     public AccountManagerProxy(AccountManager account) throws SecurityException, IOException  
-    { 
+    {    	
     	this.account = account; 
   
     	ConsoleHandler consoleHandler = new ConsoleHandler();
     	FileHandler fileHandler = new FileHandler("session.txt");
     	logger.addHandler(consoleHandler);
     	logger.addHandler(fileHandler);
-    	logger.setLevel(Level.ALL);
+//    	logger.setLevel(Level.ALL);
     	
     	consoleHandler.setLevel(Level.ALL);
     	fileHandler.setLevel(Level.ALL);
@@ -51,7 +51,7 @@ public class AccountManagerProxy implements InvocationHandler
 		    log = cmd[0].commandName();
 		    if (args != null)
 		    	for (int i = 0; i < args.length; i++)
-		    		log += " "+ args[i];
+		    		log += " " + args[i];
 		    logger.finest(log);
         }
         
@@ -70,7 +70,7 @@ public class AccountManagerProxy implements InvocationHandler
         	result = method.invoke(account, args);
         	
         	if (result != null)
-        		log += "\tresult: "+ result;	
+        		log += "\tresult: " + result;	
             
         }
         catch(InvocationTargetException e)  

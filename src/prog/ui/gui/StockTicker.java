@@ -37,7 +37,7 @@ public class StockTicker extends JFrame{
 			output += "Aktienkurse:<br><br><table>";
 			Share[] shares = provider.getAllSharesAsSnapshot();
 			for (int j = 0; j < shares.length; j++)
-				output += "<tr><td>"+ shares[j].getName() +"</td><td>"+ ((float) shares[j].getPrice()/100) +" â‚¬</td></tr>";
+				output += "<tr><td>"+ shares[j].getName() +"</td><td>"+ ((float) shares[j].getPrice()/100) +" €</td></tr>";
 
 			output += "</table>";
 			
@@ -45,12 +45,12 @@ public class StockTicker extends JFrame{
 		
 			
 			output += "<table id='players'>";
-			output += "<tr><th></th><th>VermÃ¶gen</th><th>Kontostand</th><th>Aktien</th></tr>";
+			output += "<tr><th></th><th>Vermögen</th><th>Kontostand</th><th>Aktien</th></tr>";
 			for (int j = 0; j < players.length; j++)
 			{
 				output += "<tr>";
-				output += "<td>"+ players[j].getName() +"</td><td>"+ ((float) players[j].value() / 100) +" â‚¬</td>";
-				output += "<td>"+ ((float) players[j].getCashAccount().value() / 100) +" â‚¬</td>";
+				output += "<td>"+ players[j].getName() +"</td><td>"+ ((float) players[j].value() / 100) +" €</td>";
+				output += "<td>"+ ((float) players[j].getCashAccount().value() / 100) +" €</td>";
 				Share[] ownedShares = players[j].getShareDepositAccount().getAllSharesAsSnapshot();
 				output += "<td>";
 				for (int i = 0; i < ownedShares.length; i++)
