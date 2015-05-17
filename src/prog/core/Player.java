@@ -36,6 +36,7 @@ public class Player {
 		//if a player agent already exists, dismiss it
 		if(agent != null){
 			agent.dismiss();
+			agent = null;
 		}
 		agent = playerAgent;
 	}
