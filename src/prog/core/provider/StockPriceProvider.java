@@ -70,8 +70,8 @@ public abstract class StockPriceProvider implements StockPriceInfo {
 	//// Wieso copy?
 	public Share getShare(String shareName){
 		for ( Share share : shares )
-		{
-			if ( share.getName() == shareName )
+		{			
+			if ( share.getName().equals(shareName) )
 				return share;
 		}
 	
