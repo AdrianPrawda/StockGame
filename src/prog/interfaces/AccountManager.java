@@ -52,6 +52,18 @@ public interface AccountManager {
 	@AsCommand(commandName = "da", description = "<player> * dismiss trading bot")
 	public void dismissPlayerAgent(String playerName);
 	
+	//Get Transactions
+	@AsCommand(commandName = "gt", description = "<player> * get Transaction")
+	public void getTransactions(String playerName);
+	
+	//Get Transactions
+	@AsCommand(commandName = "gt", description = "<player> <order1> * get Transaction")
+	public void getTransactions(String playerName, String orderBy1);
+	
+	//Get Transactions
+	@AsCommand(commandName = "gt", description = "<player> <order1> <order2> * get Transaction")
+	public void getTransactions(String playerName, String orderBy1, String orderBy2);
+	
 	public HashMap<String, Player> getPlayers();
 
 	public void setProxy(AccountManager accountManagerProxy);

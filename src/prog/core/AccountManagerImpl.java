@@ -1,7 +1,10 @@
 package prog.core;
 
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.SortedSet;
 
@@ -76,6 +79,7 @@ public class AccountManagerImpl implements AccountManager {
 	private Share getShare(String shareName){
 		//Update before returning the Share (we don't want outdated share info)
 		updateShareCache();
+		
 		return provider.getShare(shareName);
 	}
 
@@ -97,6 +101,7 @@ public class AccountManagerImpl implements AccountManager {
 		player.getCashAccount().withdraw(share, quantity);
 		//Add shares
 		player.getShareDepositAccount().addShares(share, quantity);
+		player.addTransaction(Transaction.Type.BUY, quantity*share.getPrice(), share, quantity, System.currentTimeMillis());
 	}
 
 	@Override
@@ -119,6 +124,7 @@ public class AccountManagerImpl implements AccountManager {
 		
 		//Deposit money on player's account
 		player.getCashAccount().deposit(share, quantity);
+		player.addTransaction(Transaction.Type.SELL, quantity*share.getPrice(), share, quantity, System.currentTimeMillis());
 	}
 
 	@Override
@@ -218,6 +224,56 @@ public class AccountManagerImpl implements AccountManager {
 	public void dismissPlayerAgent(String playerName){
 		PlayerAgent agent = getPlayer(playerName).getPlayerAgent();
 		agent.dismiss();
+	}
+
+
+	@Override
+	public void getTransactions(String playerName) {
+		Player player = getPlayer(playerName); 
+		
+		for ( Transaction t : player.getTransactions() )
+		{
+			System.out.println(t);
+		}
+		
+	}
+
+
+	@Override
+	public void getTransactions(String playerName, String orderBy1) 
+	{
+		Player player = getPlayer(playerName); 
+		
+		ArrayList<Transaction> transactions = player.getTransactions();
+		
+	    Comparator<Transaction> cmp = Transaction.getComparator(new String[]{orderBy1});
+	    
+	    transactions.sort(cmp);
+	    
+	    for ( Transaction t : transactions )
+		{
+			System.out.println(t);
+		}
+		
+	}
+
+
+	@Override
+	public void getTransactions(String playerName, String orderBy1, String orderBy2) 
+	{
+		Player player = getPlayer(playerName); 
+		
+		ArrayList<Transaction> transactions = player.getTransactions();
+		
+	    Comparator<Transaction> cmp = Transaction.getComparator(new String[]{orderBy1,orderBy2});
+	    
+	    transactions.sort(cmp);
+	    
+	    for ( Transaction t : transactions )
+		{
+			System.out.println(t);
+		}
+		
 	}
 
 

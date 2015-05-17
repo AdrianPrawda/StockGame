@@ -1,10 +1,15 @@
 package prog.core;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+
 public class Player {
 
 	private final String NAME;
 	private final CashAccount ACCOUNT;
 	private final ShareDepositAccount SHARE_DEPOSIT_ACCOUNT;
 	private PlayerAgent agent;
+	private ArrayList<Transaction> transactions = new ArrayList<Transaction>();
 	
 	public Player(String name){
 		NAME = name;
@@ -36,7 +41,7 @@ public class Player {
 		//if a player agent already exists, dismiss it
 		if(agent != null){
 			agent.dismiss();
-			agent = null;
+
 		}
 		agent = playerAgent;
 	}
@@ -50,4 +55,16 @@ public class Player {
 		String out = "[" + NAME + "]: \nCash Account: " + ACCOUNT.toString() + "\n Share Deposit: " + SHARE_DEPOSIT_ACCOUNT.toString() + "\n Player value:" + value();
 		return out;
 	}
+	
+	public void addTransaction(Transaction.Type type, long money, Share share, int amount, long time)
+	{
+		this.transactions.add(new Transaction(type, money, share, amount, time));
+	}
+	
+	public ArrayList<Transaction> getTransactions()
+	{
+		return this.transactions;
+	}
+
+	
 }

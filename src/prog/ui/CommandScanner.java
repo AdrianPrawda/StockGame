@@ -41,7 +41,7 @@ public class CommandScanner {
 		//Find command in the list of command type info objects
 		for( CommandTypeInfo current : cmdTypeInfo ){
 			//Search for the object representing the command from the user
-			if(current.getName().equals(args[0])){
+			if(current.getName().equals(args[0]) && current.getParamTypes().length == args.length-1){
 				//Command found
 				cmdt = current;
 				paramType = cmdt.getParamTypes();
