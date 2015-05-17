@@ -2,6 +2,9 @@
 
 package prog.core;
 
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.TimerTask;
 import java.util.Random;
 
@@ -71,14 +74,14 @@ public class PlayerAgent implements Agent{
 	
 	private void trade() throws FundsExceededException, NotEnoughSharesException{
 		Random rng = new Random();
-		Share[] snapshot = provider.getAllSharesAsSnapshot();
+		SortedSet<Share> snapshot = provider.getAllSharesAsSnapshot();
 		boolean buying = rng.nextBoolean();
 		
 		//Buy if true, sell if false
 		if(buying){
 //			System.out.println("I feel like buying stuff now");
-
-			Share s = snapshot[rng.nextInt(snapshot.length)];
+			Share[] shares = snapshot.toArray(new Share[0]);
+			Share s = shares[rng.nextInt(snapshot.size())];
 			//Calculate how many shares can be bought
 			int max = (int)(player.getCashAccount().value() / s.getPrice());
 			//Buy shares
@@ -94,17 +97,18 @@ public class PlayerAgent implements Agent{
 			
 			//Get shares owned by the player
 			//// Optimiert
-			Share[] ownedShares = sda.getAllSharesAsSnapshot();
+			ArrayList<Share> ownedShares = sda.getAllSharesAsSnapshot();
 			
 			
 			//Return if player doesn't own shares
-			if(ownedShares.length <= 0){
+			if(ownedShares.size() <= 0){
 				return;
 			}
 			
 			
 			//Chose random share to sell
-			Share s = ownedShares[rng.nextInt(ownedShares.length)];
+		
+			Share s = ownedShares.get(rng.nextInt(ownedShares.size()));
 			
 			//Sell shares
 			int q = sda.numberOfShares(s.getName());

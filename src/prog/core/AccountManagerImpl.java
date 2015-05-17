@@ -1,6 +1,10 @@
 package prog.core;
 
 
+import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.SortedSet;
+
 import prog.exception.*;
 import prog.core.provider.*;
 import prog.interfaces.AccountManager;
@@ -14,20 +18,20 @@ public class AccountManagerImpl implements AccountManager {
 	private StockPriceProvider provider;
 	
 	//Share Cache
-	private Share[] shares;
+	private SortedSet<Share> shares;
 	
 	//List of registered players
-	private Player[] players;
+	private HashMap<String,Player> players = new HashMap<String,Player>();
 
 	public AccountManagerImpl(StockPriceProvider provider){
-		players = new Player[0];
+
 		this.provider = provider;
 		shares = provider.getAllSharesAsSnapshot();
 
 	}
 	
 	
-	//// Proxy Methoden notwendig, damit auch Agent-Aktionen geloggt werden können; evtl. optimierungsbedürftig
+	//// Proxy Methoden notwendig, damit auch Agent-Aktionen geloggt werden kï¿½nnen; evtl. optimierungsbedï¿½rftig
 	public void setProxy(AccountManager proxy)
 	{
 		this.proxy = proxy;
@@ -48,50 +52,24 @@ public class AccountManagerImpl implements AccountManager {
 	//Create new Player (name has to be unique!)
 	public void createPlayer(String name) {
 		
-		//buffer output
-		Player[] out = new Player[players.length+1];
-		
-		for(int i=0; i<players.length; i++){
-			//Search for player
-			if(players[i].getName().equals(name)){
-				//Player already exists!
-				throw new ObjectAlreadyExistsException("Can't create new player, player " + name + " already exists!");
-			}
-			//Copy players array in the meantime
-			out[i] = players[i];
-		}
-		
-		//Newly created player is always the last entry
-		out[out.length-1] = new Player(name);
-		players = out;
+		if (players.containsKey(name))
+			throw new ObjectAlreadyExistsException("Can't create new player, player " + name + " already exists!");
+		players.put(name, new Player(name));
+
 	}
 	
 	//Check if given player name is listed
 	private boolean isPlayerListed(String playerName){
-		for(int i=0; i<players.length; i++){
-			//Check if player name already exists
-			if(players[i].getName().equals(playerName)){
-				//If so: return true (Player is already listed)
-				return true;
-			}
-		}
-		
-		//No player with this name exists -> player name is not listed
-		return false;
+		return players.containsKey(playerName);
+
 	}
 	
 	//Get player object by name
 	private Player getPlayer(String playerName){
-		for(int i=0; i<players.length; i++){
-			//Check if player name exists
-			if(players[i].getName().equals(playerName)){
-				//Return player object
-				return players[i];
-			}
-		}
+		if (!players.containsKey(playerName))
+			throw new ObjectNotFoundException("Player " + playerName + " not found");
+		return players.get(playerName);
 		
-		//Player doesn't exist
-		throw new ObjectNotFoundException("Player " + playerName + " not found");
 	}
 	
 	//Get share object by name
@@ -174,8 +152,8 @@ public class AccountManagerImpl implements AccountManager {
 		String out = "";
 		
 		//Get name and price of every share
-		for(int i=0; i<shares.length; i++){
-			out = out + shares[i].getName() + ": " + shares[i].getPrice() + "\n";
+		for( Share share : shares ){
+			out = out + share.getName() + ": " + share.getPrice() + "\n";
 		}
 
 		return out;
@@ -186,11 +164,15 @@ public class AccountManagerImpl implements AccountManager {
 	public String toString(){
 		//All available shares
 		String out = "Available Shares:\n" + availableShares() + "\nPlayers:\n";
-		
+
 		//All players
-		for(int i=0; i<players.length; i++){
-		out = out + players[i].toString() + "\n";
+		for(Entry<String, Player> entry : players.entrySet())
+		{
+			
+			out += entry.getValue() + "\n";
 		}
+			
+
 		
 		return out;
 	}
@@ -199,15 +181,16 @@ public class AccountManagerImpl implements AccountManager {
 	public String playerList(){
 		String out = "";
 		
-		//Get every players' name
-		for(int i=0; i<players.length; i++){
-			out += players[i].getName() + "\n";
+		for(Entry<String, Player> entry : players.entrySet())
+		{			
+			out += entry.getKey() + "\n";
 		}
+		
 		
 		return out;
 	}
 	
-	public Player[] getPlayers()
+	public HashMap<String,Player> getPlayers()
 	{
 		return players;
 	}

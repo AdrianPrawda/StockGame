@@ -1,5 +1,7 @@
 package prog.interfaces;
 
+import java.util.SortedSet;
+
 import prog.core.Share;
 
 public interface StockPriceInfo{
@@ -11,5 +13,5 @@ public interface StockPriceInfo{
 	public long getCurrentShareRate(String shareName);
 	
 	//A list of all shares as snapshot
-	public Share[] getAllSharesAsSnapshot();
+	public SortedSet getAllSharesAsSnapshot();
 }

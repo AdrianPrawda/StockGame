@@ -1,26 +1,29 @@
 package prog.core;
 
+import java.util.ArrayList;
+
 import prog.exception.*;
 
 public class ShareDepositAccount extends Asset{
 	//Share items
-   ShareItem[] shareItems = new ShareItem[0];
+   ArrayList<ShareItem> shareItems = new ArrayList<ShareItem>();
    
    public ShareDepositAccount(String name){
       this.name = name;
    }
    
    //Get a copy of all shares
-	public Share[] getAllSharesAsSnapshot(){
-		//Create buffer
-		Share[] copy = new Share[shareItems.length];
+	public ArrayList<Share> getAllSharesAsSnapshot(){
 		
-		//Create deep copy
-		for(int i=0; i<copy.length; i++){
-			copy[i] = new Share(shareItems[i].getShare());
+		ArrayList<Share> shares = new ArrayList<Share>();
+		
+		for ( ShareItem item : shareItems ) 
+		{
+			shares.add(item.getShare());
 		}
 		
-		return copy;
+		return shares;
+		
 	}
    
    
@@ -44,15 +47,15 @@ public class ShareDepositAccount extends Asset{
    //Get value of all shares
    public long value(){
       int v = 0;
-      for(int i=0; i<shareItems.length; i++){
-         v += shareItems[i].value();
+      for( ShareItem item : shareItems ){
+         v += item.value();
       }
       return v;
    }
    
    //Info about ShareDepositAccount
    public String toString(){
-	   return ("[" + name + "] Value: " + value() + " Items: " + shareItems.length);
+	   return ("[" + name + "] Value: " + value() + " Items: " + shareItems.size());
    }
    
    //Check if a share item is already in this deposit
@@ -62,8 +65,8 @@ public class ShareDepositAccount extends Asset{
    
    //Check if a share item is already in this deposit
    private boolean isShareItemListed(String shareItemName){
-	   for(int i=0; i<shareItems.length; i++){
-		   if(shareItems[i].getName().equals(shareItemName)){
+	   for( ShareItem item : shareItems ){
+		   if(item.getName().equals(shareItemName)){
 			   //Share item with this name is already in this deposit
 			   return true;
 		   }
@@ -75,10 +78,10 @@ public class ShareDepositAccount extends Asset{
    
    //Get share item by name
    private ShareItem getShareItem(String shareItemName){
-	   for(int i=0; i<shareItems.length; i++){
+	   for( ShareItem item : shareItems ){
 		   //If element was found, return
-		   if(shareItems[i].getName().equals(shareItemName)){
-			   return shareItems[i];
+		   if(item.getName().equals(shareItemName)){
+			   return item;
 		   }
 	   }
 	   
@@ -95,17 +98,9 @@ public class ShareDepositAccount extends Asset{
 		   throw new ObjectAlreadyExistsException("Share item " + shareItem.getName() + " already exists");
 	   }
 	   
-	   //Share item buffer
-	   ShareItem[] out = new ShareItem[shareItems.length+1];
+	   shareItems.add(shareItem);
 	   
-	   //Copy share items
-	   for(int i=0; i<shareItems.length; i++){
-		   out[i] = shareItems[i];
-	   }
-	   
-	   //Add share item
-	   out[out.length-1] = shareItem;
-	   shareItems = out;
+
    }
    
    //Create a new share item uniquely defined by the ref share

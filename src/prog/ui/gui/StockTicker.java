@@ -1,9 +1,13 @@
 package prog.ui.gui;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.SortedSet;
 import java.util.TimerTask;
 import java.util.Timer;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map.Entry;
 import java.text.DateFormat;
 
 import javax.swing.JFrame;
@@ -35,26 +39,27 @@ public class StockTicker extends JFrame{
 			output += "<body>"; 
 			
 			output += "Aktienkurse:<br><br><table>";
-			Share[] shares = provider.getAllSharesAsSnapshot();
-			for (int j = 0; j < shares.length; j++)
-				output += "<tr><td>"+ shares[j].getName() +"</td><td>"+ ((float) shares[j].getPrice()/100) +" €</td></tr>";
+			SortedSet<Share> shares = provider.getAllSharesAsSnapshot();
+			for( Share share : shares )
+				output += "<tr><td>"+ share.getName() +"</td><td>"+ ((float) share.getPrice()/100) +" ï¿½</td></tr>";
 
 			output += "</table>";
 			
-			Player[] players = manager.getPlayers();
+			HashMap<String,Player> players = manager.getPlayers();
 		
 			
 			output += "<table id='players'>";
-			output += "<tr><th></th><th>Vermögen</th><th>Kontostand</th><th>Aktien</th></tr>";
-			for (int j = 0; j < players.length; j++)
+			output += "<tr><th></th><th>Vermï¿½gen</th><th>Kontostand</th><th>Aktien</th></tr>";
+			for ( Entry<String,Player> entry : players.entrySet() )
 			{
+				Player currentPlayer = entry.getValue();
 				output += "<tr>";
-				output += "<td>"+ players[j].getName() +"</td><td>"+ ((float) players[j].value() / 100) +" €</td>";
-				output += "<td>"+ ((float) players[j].getCashAccount().value() / 100) +" €</td>";
-				Share[] ownedShares = players[j].getShareDepositAccount().getAllSharesAsSnapshot();
+				output += "<td>"+ currentPlayer.getName() +"</td><td>"+ ((float) currentPlayer.value() / 100) +" â‚¬</td>";
+				output += "<td>"+ ((float) currentPlayer.getCashAccount().value() / 100) +" â‚¬</td>";
+				ArrayList<Share> ownedShares = currentPlayer.getShareDepositAccount().getAllSharesAsSnapshot();
 				output += "<td>";
-				for (int i = 0; i < ownedShares.length; i++)
-					output += "<div>" + ownedShares[i].getName() +" ("+ players[j].getShareDepositAccount().numberOfShares(ownedShares[i].getName()) +")</div>";
+				for ( Share share : ownedShares )
+					output += "<div>" + share.getName() +" ("+ currentPlayer.getShareDepositAccount().numberOfShares(share.getName()) +")</div>";
 				output += "</td>";
 				output += "</tr>";
 			}

@@ -1,20 +1,26 @@
 package prog.core.provider;
 
 import prog.core.GlobalTimer;
+import prog.core.Player;
 import prog.core.Share;
 import prog.interfaces.StockPriceInfo;
 import prog.exception.ObjectNotFoundException;
 import prog.exception.ObjectAlreadyExistsException;
+
+import java.util.HashMap;
+import java.util.SortedSet;
 import java.util.TimerTask;
+import java.util.TreeSet;
+import java.util.Map.Entry;
 
 public abstract class StockPriceProvider implements StockPriceInfo {
 	//Create a few shares to play around with
-	protected Share[] shares;
+	SortedSet<Share> shares = new TreeSet<Share>();
 	//Set a global timer
 	protected GlobalTimer timer = GlobalTimer.getInstance();
 	
 	public StockPriceProvider(){
-		shares = new Share[0];
+
 		startUpdate();
 	}
 	
@@ -22,61 +28,53 @@ public abstract class StockPriceProvider implements StockPriceInfo {
 		if(isShareListed(shareName)){
 			throw new ObjectAlreadyExistsException();
 		}
-		
-		Share[] buffer = new Share[shares.length+1];
-		
-		for(int i=0; i<shares.length; i++){
-			buffer[i] = shares[i];
-		}
-		
-		buffer[buffer.length-1] = new Share(shareName, price);
-		shares = buffer;
+		shares.add(new Share(shareName, price));
+
 	}
 	
 	//Check if a share is listed or not
 	public boolean isShareListed(String shareName){
-		for(int i=0; i<shares.length; i++){
-			if(shares[i].getName().equals(shareName)){
+		for ( Share share : shares )
+		{
+			if (share.getName() == shareName)
 				return true;
-			}
 		}
-		
 		return false;
 	}
 	
 	//Get the current share rate of a share
 	public long getCurrentShareRate(String shareName){
-		for(int i=0; i<shares.length; i++){
-			if(shares[i].getName().equals(shareName)){
-				return shares[i].getPrice();
-			}
-		}
-		
 		//Share doesn't exist
-		throw new ObjectNotFoundException("Share " + shareName + " doesn't exist");
+		if (!isShareListed(shareName))
+		{
+			throw new ObjectNotFoundException("Share " + shareName + " doesn't exist");
+		}
+		Share share = getShare(shareName);
+		return share.getPrice();
+		
+		
+		
 	}
 	
 	//Get a copy of all shares
-	public Share[] getAllSharesAsSnapshot(){
-		//Create buffer
-		Share[] copy = new Share[shares.length];
-		
-		//Create deep copy
-		for(int i=0; i<copy.length; i++){
-			copy[i] = new Share(shares[i]);
-		}
+	public SortedSet getAllSharesAsSnapshot(){
+
+		SortedSet<Share> copy = new TreeSet<Share>(shares);
 		
 		return copy;
+		
+
 	}
 	
 	//Get a copy of a specific share
+	//// Wieso copy?
 	public Share getShare(String shareName){
-		for(int i=0; i<shares.length; i++){
-			if(shares[i].getName().equals(shareName)){
-				Share copy = shares[i];
-				return copy;
-			}
+		for ( Share share : shares )
+		{
+			if ( share.getName() == shareName )
+				return share;
 		}
+	
 		
 		//Share doesn't exist
 		throw new ObjectNotFoundException("Share " + shareName + " doesn't exist");
@@ -95,8 +93,8 @@ public abstract class StockPriceProvider implements StockPriceInfo {
 	public String shareInfo(){
 		String out = "";
 		
-		for(int i=0; i<shares.length; i++){
-			out += shares[i].getName() + "\n" + shares[i].getPrice() + "\n\n";
+		for( Share share : shares ){
+			out += share.getName() + "\n" + share.getPrice() + "\n\n";
 		}
 		
 		return out;
@@ -106,8 +104,8 @@ public abstract class StockPriceProvider implements StockPriceInfo {
 	public String shareList(){
 		String out = "";
 		
-		for(int i=0; i<shares.length; i++){
-			out += shares[i].getName() + "\n";
+		for( Share share : shares ){
+			out += share.getName() + "\n";
 		}
 		
 		return out;
@@ -115,8 +113,8 @@ public abstract class StockPriceProvider implements StockPriceInfo {
 	
 	//Update all share rates
 	protected void updateShareRates(){
-		for(int i=0; i<shares.length; i++){
-			updateShareRate(shares[i]);
+		for( Share share : shares ){
+			updateShareRate(share);
 		}
 	}
 	

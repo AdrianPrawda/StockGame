@@ -1,5 +1,7 @@
 package prog.interfaces;
 
+import java.util.HashMap;
+
 import prog.exception.FundsExceededException;
 import prog.exception.NotEnoughSharesException;
 import prog.core.AccountManagerProxy;
@@ -50,7 +52,7 @@ public interface AccountManager {
 	@AsCommand(commandName = "da", description = "<player> * dismiss trading bot")
 	public void dismissPlayerAgent(String playerName);
 	
-	public Player[] getPlayers();
+	public HashMap<String, Player> getPlayers();
 
 	public void setProxy(AccountManager accountManagerProxy);
 

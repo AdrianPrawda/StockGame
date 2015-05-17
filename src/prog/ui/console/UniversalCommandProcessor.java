@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 
 import prog.interfaces.CommandTypeInfo;
 import prog.ui.*;
@@ -16,7 +17,7 @@ import prog.exception.ObjectNotFoundException;
 public class UniversalCommandProcessor {
 	private Object target;
 	private Class<?> interf;
-	private CommandTypeInfo[] commandTypes;
+	private ArrayList<CommandTypeInfo> commandTypes;
 	private BufferedReader reader;
 	private PrintWriter writer;
 
@@ -50,13 +51,14 @@ public class UniversalCommandProcessor {
 	}
 	
 	//Generates a list of CommandTypeInfo Objects from a target (for the methods) and a source class
-	private CommandTypeInfo[] generateCommandTypeInfoObjectsFromSource(Object target, Class<?> source){
+	private ArrayList<CommandTypeInfo> generateCommandTypeInfoObjectsFromSource(Object target, Class<?> source){
 		//Get all methods declared by the source
 		Method[] methods = source.getDeclaredMethods();
 		//Create a buffer that is large enough to theoretically save as many commandTypeInfos as there are defined methods
-		CommandTypeInfo[] cmdTypeInfos = new CommandTypeInfo[methods.length];
+
+		ArrayList<CommandTypeInfo> cmdTypeInfos = new ArrayList<CommandTypeInfo>();
 		
-		int p=0;
+
 		//Get all methods
 		for(Method method : methods){
 			//Check if the method has an AsCommand annotation. If not the value of a will be null
@@ -65,37 +67,27 @@ public class UniversalCommandProcessor {
 				//Command found!
 				//Generate new CommandType
 				CommandType c = new CommandType(a.commandName(),a.description(),method,target,method.getParameterTypes());
-				cmdTypeInfos[p] = c;
-				p += 1;
+				cmdTypeInfos.add(c);
+		
 			}
 		}
 		
-		//Resize array
-		CommandTypeInfo[] out = new CommandTypeInfo[p];
-		for(int j=0; j<out.length; j++){
-			out[j] = cmdTypeInfos[j];
-		}
+
 		
-		return out;
+		return cmdTypeInfos;
 	}
 	
 	private void generateCommandTypeInfoObjects(){
 		//Generate the type info of all always available commands (In short: all commands defined in the UniversalCommandProcessor class)
-		CommandTypeInfo[] std = generateCommandTypeInfoObjectsFromSource(this, this.getClass());
+		ArrayList<CommandTypeInfo> std = generateCommandTypeInfoObjectsFromSource(this, this.getClass());
 		//Generate type info
-		CommandTypeInfo[] add = generateCommandTypeInfoObjectsFromSource(target, interf);
+		ArrayList<CommandTypeInfo> add = generateCommandTypeInfoObjectsFromSource(target, interf);
 		
-		//Merge those two arrays
-		CommandTypeInfo[] out = new CommandTypeInfo[std.length + add.length];
-		for(int i=0; i<std.length; i++){
-			out[i] = std[i];
-		}
-		for(int j=0; j<add.length; j++){
-			out[j+std.length] = add[j];
-		}
+		std.addAll(add);
+
 		
 		//Save resulting array
-		commandTypes = out;
+		commandTypes = std;
 	}
 	
 	public void process(){

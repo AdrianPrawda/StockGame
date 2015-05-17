@@ -2,6 +2,7 @@ package prog.ui;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import prog.interfaces.CommandTypeInfo;
 import prog.ui.CommandDescriptor;
@@ -11,9 +12,9 @@ import prog.exception.InvalidArgumentException;
 
 public class CommandScanner {
 	BufferedReader reader;
-	CommandTypeInfo[] cmdTypeInfo;
+	ArrayList<CommandTypeInfo> cmdTypeInfo;
 
-	public CommandScanner(CommandTypeInfo[] cmdTypeInfo, BufferedReader reader){
+	public CommandScanner(ArrayList<CommandTypeInfo> cmdTypeInfo, BufferedReader reader){
 		this.cmdTypeInfo = cmdTypeInfo;
 		this.reader = reader;
 	}
@@ -38,11 +39,11 @@ public class CommandScanner {
 		CommandTypeInfo cmdt = null;
 		
 		//Find command in the list of command type info objects
-		for(int i=0; i<cmdTypeInfo.length; i++){
+		for( CommandTypeInfo current : cmdTypeInfo ){
 			//Search for the object representing the command from the user
-			if(cmdTypeInfo[i].getName().equals(args[0])){
+			if(current.getName().equals(args[0])){
 				//Command found
-				cmdt = cmdTypeInfo[i];
+				cmdt = current;
 				paramType = cmdt.getParamTypes();
 			}
 		}

@@ -1,6 +1,6 @@
 package prog.core;
 
-public class Share {
+public class Share implements Comparable<Share> {
    private final String NAME;
    private long price;
    
@@ -47,5 +47,11 @@ public class Share {
       //Return false if not
       return false;
    }
+
+	@Override
+	public int compareTo(Share share) {
+		// TODO Auto-generated method stub
+		return getName().compareTo(share.getName());
+	}
    
 }
