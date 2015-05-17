@@ -35,13 +35,11 @@ public class Player {
 	}
 	
 	
-	
 	//Set new player agent
 	public void setPlayerAgent(PlayerAgent playerAgent){
 		//if a player agent already exists, dismiss it
-		if(agent != null){
+		if(agent != null || agent.isTrading() == true){
 			agent.dismiss();
-
 		}
 		agent = playerAgent;
 	}
