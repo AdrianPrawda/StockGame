@@ -30,6 +30,11 @@ public class Share implements Comparable<Share> {
 	   }
    }
    
+   public void setPrice(long price)
+   {
+	   this.price = price;
+   }
+   
    public String toString(){
 	   return ("[" + NAME + "] Price: " + price);
    }

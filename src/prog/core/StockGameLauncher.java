@@ -10,7 +10,7 @@ import prog.core.provider.*;
 import prog.interfaces.AccountManager;
 
 public class StockGameLauncher {
-	private static StockPriceProvider provider = new RandomStockPriceProvider(8);
+	private static StockPriceProvider provider = new HistoricalStockPriceProvider();
 	
 	private static AccountManagerImpl accountManager = new AccountManagerImpl(provider);
 	private static UniversalCommandProcessor commandProcessor; 
@@ -37,8 +37,8 @@ public class StockGameLauncher {
 		//Create a few shares
 		provider.createShare("BMW", 11075);
 		provider.createShare("Siemens", 10050);
-		provider.createShare("Audi", 12398);
-		provider.createShare("Porsche", 8863);
+		provider.createShare("Volkswagen", 12398);
+		provider.createShare("Osram", 8863);
 		provider.createShare("Commerzbank", 1226);
 		provider.createShare("BASF", 8918);
 		
