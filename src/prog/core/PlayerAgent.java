@@ -66,32 +66,31 @@ public class PlayerAgent implements Agent{
 	@Override
 	//If agent is trading returns true
 	public boolean isTrading() {
-		if(task == null){
-			return false;
-		}
-		return true;
+		return task != null;
+
 	}
 	
 	private void trade() throws FundsExceededException, NotEnoughSharesException{
 		Random rng = new Random();
-		SortedSet<Share> snapshot = provider.getAllSharesAsSnapshot();
+		Set<Share> snapshot = provider.getAllSharesAsSnapshot();
 		boolean buying = rng.nextBoolean();
 		
 		//Buy if true, sell if false
 		if(buying){
-//			System.out.println("I feel like buying stuff now");
+
 			Share[] shares = snapshot.toArray(new Share[0]);
+
 			Share s = shares[rng.nextInt(snapshot.size())];
 			//Calculate how many shares can be bought
 			int max = (int)(player.getCashAccount().value() / s.getPrice());
 			//Buy shares
 			if(max >= 1){
 				int r = rng.nextInt(max)+1;
-//				System.out.println("I bought " + s.getName() + " " + r + " times");
+
 				manager.buyShares(player.getName(), s.getName(), r);
 			}
 		}else{
-//			System.out.println("I feel like selling stuff now");
+
 
 			ShareDepositAccount sda = player.getShareDepositAccount();
 			

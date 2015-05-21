@@ -55,7 +55,7 @@ public class Share implements Comparable<Share> {
 
 	@Override
 	public int compareTo(Share share) {
-		// TODO Auto-generated method stub
+
 		return getName().compareTo(share.getName());
 	}
    

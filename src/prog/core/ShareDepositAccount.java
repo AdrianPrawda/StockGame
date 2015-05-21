@@ -17,10 +17,8 @@ public class ShareDepositAccount extends Asset{
 		
 		ArrayList<Share> shares = new ArrayList<Share>();
 		
-		for ( ShareItem item : shareItems ) 
-		{
-			shares.add(item.getShare());
-		}
+		shareItems.forEach( item -> shares.add(item.getShare()) );
+
 		
 		return shares;
 		
@@ -46,11 +44,11 @@ public class ShareDepositAccount extends Asset{
    
    //Get value of all shares
    public long value(){
-      int v = 0;
-      for( ShareItem item : shareItems ){
-         v += item.value();
-      }
-      return v;
+     
+      return shareItems
+    		  .stream()
+    		  .mapToLong( ShareItem::value )
+    		  .sum();
    }
    
    //Info about ShareDepositAccount
@@ -65,28 +63,20 @@ public class ShareDepositAccount extends Asset{
    
    //Check if a share item is already in this deposit
    private boolean isShareItemListed(String shareItemName){
-	   for( ShareItem item : shareItems ){
-		   if(item.getName().equals(shareItemName)){
-			   //Share item with this name is already in this deposit
-			   return true;
-		   }
-	   }
-	   
-	   //Share item with this name is not in this deposit
-	   return false;
+	   return shareItems
+			   .stream()
+			   .anyMatch( s -> s.getName().equals(shareItemName) );
+
    }
    
    //Get share item by name
    private ShareItem getShareItem(String shareItemName){
-	   for( ShareItem item : shareItems ){
-		   //If element was found, return
-		   if(item.getName().equals(shareItemName)){
-			   return item;
-		   }
-	   }
-	   
-	   //If no element was found throw exception
-	   throw new ObjectNotFoundException("Share Item " + shareItemName + " not found");
+	   return shareItems
+			   .stream()
+			   .filter( s -> s.getName().equals(shareItemName) )
+			   .findAny()
+			   .orElseThrow(() -> new ObjectNotFoundException("Share Item " + shareItemName + " not found")); 
+
    }
    
    
@@ -140,7 +130,7 @@ public class ShareDepositAccount extends Asset{
    
    //Get the number of shares in share item via the shares name
    public int numberOfShares(String shareName){
-	   int n = 0;;
+	   int n = 0;
 	   
 	   try{
 		   n = getShareItem(shareName).getQuantity();

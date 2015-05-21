@@ -2,6 +2,7 @@ package prog.ui.gui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TimerTask;
 import java.util.Timer;
@@ -39,7 +40,7 @@ public class StockTicker extends JFrame{
 			output += "<body>"; 
 			
 			output += "Aktienkurse:<br><br><table>";
-			SortedSet<Share> shares = provider.getAllSharesAsSnapshot();
+			Set<Share> shares = provider.getAllSharesAsSnapshot();
 			for( Share share : shares )
 				output += "<tr><td>"+ share.getName() +"</td><td>"+ ((float) share.getPrice()/100) +" �</td></tr>";
 

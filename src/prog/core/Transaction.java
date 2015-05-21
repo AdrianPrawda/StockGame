@@ -92,6 +92,8 @@ public class Transaction
 		ArrayList<SortBy> sorts = new ArrayList<SortBy>();
 		for ( String currentSort : sortStrings )
 		{
+			if (currentSort == null)
+				continue;
 			switch(currentSort)
 			{
 			case "date":

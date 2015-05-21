@@ -8,10 +8,12 @@ import prog.exception.ObjectNotFoundException;
 import prog.exception.ObjectAlreadyExistsException;
 
 import java.util.HashMap;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TimerTask;
 import java.util.TreeSet;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public abstract class StockPriceProvider implements StockPriceInfo {
 	//Create a few shares to play around with
@@ -34,12 +36,10 @@ public abstract class StockPriceProvider implements StockPriceInfo {
 	
 	//Check if a share is listed or not
 	public boolean isShareListed(String shareName){
-		for ( Share share : shares )
-		{
-			if (share.getName() == shareName)
-				return true;
-		}
-		return false;
+		return shares
+				.stream()
+				.anyMatch( s -> s.getName().equals(shareName) );
+
 	}
 	
 	//Get the current share rate of a share
@@ -57,11 +57,9 @@ public abstract class StockPriceProvider implements StockPriceInfo {
 	}
 	
 	//Get a copy of all shares
-	public SortedSet getAllSharesAsSnapshot(){
-
-		SortedSet<Share> copy = new TreeSet<Share>(shares);
+	public Set getAllSharesAsSnapshot(){
 		
-		return copy;
+		return new TreeSet<Share>(shares);
 		
 
 	}
@@ -87,35 +85,31 @@ public abstract class StockPriceProvider implements StockPriceInfo {
 				updateShareRates();
 			}
 		}, 3000, 1000);
+
 	}
 	
 	//Get info
 	public String shareInfo(){
-		String out = "";
 		
-		for( Share share : shares ){
-			out += share.getName() + "\n" + share.getPrice() + "\n\n";
-		}
-		
-		return out;
+		return shares
+				.stream()
+				.map( s -> s.getName() + "\n" + s.getPrice() )
+				.collect( Collectors.joining("\n\n") );
 		
 	}
 	
 	public String shareList(){
-		String out = "";
 		
-		for( Share share : shares ){
-			out += share.getName() + "\n";
-		}
-		
-		return out;
+		return shares
+				.stream()
+				.map( Share::getName )
+				.collect( Collectors.joining("\n") );
 	}
 	
 	//Update all share rates
 	protected void updateShareRates(){
-		for( Share share : shares ){
-			updateShareRate(share);
-		}
+		shares.forEach( s -> updateShareRate(s) );
+
 	}
 	
 	//Update a single shares share rate

@@ -17,7 +17,7 @@ public class Command extends CommandDescriptor implements Executable {
 		CommandTypeInfo c = super.cmdType;
 		Method m = c.getMethod();
 		Object o = null;
-		
+
 		//Invoke method on a target using the parameter from the superclass
 		o = m.invoke(c.getTarget(), super.params);
 	

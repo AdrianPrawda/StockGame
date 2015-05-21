@@ -6,7 +6,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
 
 import prog.exception.*;
 import prog.core.provider.*;
@@ -21,7 +23,7 @@ public class AccountManagerImpl implements AccountManager {
 	private StockPriceProvider provider;
 	
 	//Share Cache
-	private SortedSet<Share> shares;
+	private Set<Share> shares;
 	
 	//List of registered players
 	private HashMap<String,Player> players = new HashMap<String,Player>();
@@ -155,14 +157,11 @@ public class AccountManagerImpl implements AccountManager {
 	//Print info for all available shares
 	public String availableShares() {
 		updateShareCache();
-		String out = "";
-		
-		//Get name and price of every share
-		for( Share share : shares ){
-			out = out + share.getName() + ": " + share.getPrice() + "\n";
-		}
 
-		return out;
+		return shares
+				.stream()
+				.map( s -> String.format("%s: %d", s.getName(), s.getPrice()) )
+				.collect(Collectors.joining("\n"));
 	}
 	
 	@Override
@@ -170,14 +169,12 @@ public class AccountManagerImpl implements AccountManager {
 	public String toString(){
 		//All available shares
 		String out = "Available Shares:\n" + availableShares() + "\nPlayers:\n";
+		
+		out += players
+				.keySet()
+				.stream()
+				.collect( Collectors.joining("\n") );
 
-		//All players
-		for(Entry<String, Player> entry : players.entrySet())
-		{
-			
-			out += entry.getValue() + "\n";
-		}
-			
 
 		
 		return out;
@@ -185,15 +182,11 @@ public class AccountManagerImpl implements AccountManager {
 	
 	//A List of all registered player names
 	public String playerList(){
-		String out = "";
 		
-		for(Entry<String, Player> entry : players.entrySet())
-		{			
-			out += entry.getKey() + "\n";
-		}
-		
-		
-		return out;
+		return players
+				.keySet()
+				.stream()
+				.collect( Collectors.joining("\n") );
 	}
 	
 	public HashMap<String,Player> getPlayers()
@@ -216,77 +209,29 @@ public class AccountManagerImpl implements AccountManager {
 		Player player = getPlayer(playerName);
 		PlayerAgent agent = new PlayerAgent(player, provider, this.getProxy());
 		player.setPlayerAgent(agent);
-		player.getPlayerAgent().startTrading();
+		agent.startTrading();
 	}
 	
 	
 	//Dismiss a player agent (trade bot)
 	public void dismissPlayerAgent(String playerName){
-		PlayerAgent agent = getPlayer(playerName).getPlayerAgent();
-		agent.dismiss();
+		getPlayer(playerName).getPlayerAgent().dismiss();
 	}
 
 
 	@Override
-	public String getTransactions(String playerName) {
-		Player player = getPlayer(playerName); 
-		String out = "";
-		
-		for ( Transaction t : player.getTransactions() )
-		{
-			out += t.toString();
-		}
-		
-		return out;
-		
-	}
-
-
-	@Override
-	public String getTransactions(String playerName, String orderBy1) 
+	public String getTransactions(String playerName, String... options) 
 	{
-		Player player = getPlayer(playerName); 
-		
-		ArrayList<Transaction> transactions = player.getTransactions();
-		
-	    Comparator<Transaction> cmp = Transaction.getComparator(new String[]{orderBy1});
-	    
-	    transactions.sort(cmp);
-	    
-	    String out = "";
-	    
-	    for ( Transaction t : transactions )
-		{
-	    	out += t.toString();
-		}
-	    
-	    return out;
+			
+		ArrayList<Transaction> transactions = getPlayer(playerName).getTransactions();
+			    
+	    return transactions
+	    		.stream()
+	    		.sorted( Transaction.getComparator(options) )
+	    		.map( Transaction::toString )
+	    		.collect( Collectors.joining() );
 		
 	}
-
-
-	@Override
-	public String getTransactions(String playerName, String orderBy1, String orderBy2) 
-	{
-		Player player = getPlayer(playerName); 
-		
-		ArrayList<Transaction> transactions = player.getTransactions();
-		
-	    Comparator<Transaction> cmp = Transaction.getComparator(new String[]{orderBy1,orderBy2});
-	    
-	    transactions.sort(cmp);
-	    
-	    String out = "";
-	    
-	    for ( Transaction t : transactions )
-		{
-	    	out += t.toString();
-		}
-	    
-	    return out;
-		
-	}
-
 
 
 }

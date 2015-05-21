@@ -76,7 +76,7 @@ public class AccountManagerProxy implements InvocationHandler
         catch(InvocationTargetException e)  
         {
         	log += "\texception: " + e.getTargetException();
-        	
+
         	throw e.getTargetException();
         }
         finally

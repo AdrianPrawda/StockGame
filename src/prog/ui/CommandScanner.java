@@ -3,128 +3,111 @@ package prog.ui;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 
-import prog.interfaces.CommandTypeInfo;
-import prog.ui.CommandDescriptor;
-import prog.exception.ObjectNotFoundException;
-import prog.exception.NotEnoughArgumentsException;
 import prog.exception.InvalidArgumentException;
+import prog.exception.NotEnoughArgumentsException;
+import prog.exception.ObjectNotFoundException;
+import prog.interfaces.CommandTypeInfo;
 
 public class CommandScanner {
+	
 	BufferedReader reader;
-	ArrayList<CommandTypeInfo> cmdTypeInfo;
+	List<CommandTypeInfo> cmdTypeInfo;
+	List<Object> varArgs = new ArrayList<Object>();
+	Iterator<String> argsIterator;
 
 	public CommandScanner(ArrayList<CommandTypeInfo> cmdTypeInfo, BufferedReader reader){
 		this.cmdTypeInfo = cmdTypeInfo;
 		this.reader = reader;
 	}
 	
-	//Convert the users input to a more useful one
-	public CommandDescriptor commandLine2CommandDescriptor(CommandDescriptor container){
-		//The users input
-		String line = "";
+	public CommandDescriptor commandLine2CommandDescriptor(CommandDescriptor container) throws IOException
+	{
 		
-		try{
-			line = reader.readLine();
-		}catch(IOException e){
-			//IO Error occurred
-		}
+		ArrayList<String> args = new ArrayList<String>(Arrays.asList(reader.readLine().split(" ")));
 		
-		//First position is always the command identifier (args[0] = command name)
-		String args[] = line.split(" ");
+		// remove command name from args
+		String cmdName = args.remove(0);
 		
-		//Buffer for an array of parameter types
-		Class<?>[] paramType = null;
-		//Buffer for the command type information
-		CommandTypeInfo cmdt = null;
+		argsIterator = args.iterator();
 		
-		//Find command in the list of command type info objects
-		for( CommandTypeInfo current : cmdTypeInfo ){
-			//Search for the object representing the command from the user
-			if(current.getName().equals(args[0]) && current.getParamTypes().length == args.length-1){
-				//Command found
-				cmdt = current;
-				paramType = cmdt.getParamTypes();
-			}
-		}
+		CommandTypeInfo found = cmdTypeInfo
+					.stream()
+					.filter( cmd -> cmd.getName().equals(cmdName) )
+					.findAny()
+					.orElseThrow(() -> new ObjectNotFoundException("Command not found"));		
+
 		
-		//If the command from the user is not defined paramType and cmdt will be null
-		if(paramType == null || cmdt == null){
-			//Command not found! (LOG!!)
-			throw new ObjectNotFoundException("Command not found");
-		}
+		List<Class<?>> methodParameters = new ArrayList<Class<?>>( Arrays.asList(found.getParamTypes()) );
+	
+		List<Object> castedParameters = new ArrayList<Object>();
 		
-		//Save the command type info representing the users command
-		container.setCommandType(cmdt);
-		
-		//Object buffer
-		Object[] castParams = new Object[paramType.length];
-		int j = 0;
-		
-		//If the length of the paramType array is 0 or if the first entry is null, the methods has no arguments (example: method())
-		if(paramType.length == 0 || paramType[0] == null){
-			//Create empty class<?> array
-			Class<?>[] p = {null};
-			paramType = p;
 			
-			//And set is as the methods parameter list
-			container.setParams(castParams);
-			return container;
-		}
+		methodParameters.forEach( p -> castedParameters.add( getCasted(p, argsIterator.hasNext() ? argsIterator.next() : null) ) );
 		
-		//Check if the user entered at least as many arguments as required by the method
-		if(paramType.length+1 > args.length){
-			//Not enough arguments!
-			throw new NotEnoughArgumentsException("Invalid number of arguments. Expected " + paramType.length + " got " + (args.length-1));
-		}
+
+		container.setParams(castedParameters.toArray(new Object[0]));
 		
-		//Generate required objects
-		for(Class<?> element : paramType){
-			Object obj = null;
-			
-			try{
-				//Try to cast the users arguments based on the list of parameter types
-				obj = element.cast(args[j+1]);
-			}catch(ClassCastException e){
-				//If we try to cast a primitive time, a ClassCastException will be thrown 
-				try{
-					//Basic types have to be parsed, not casted
-					switch(element.toString()){
-					case "int":
-						obj = Integer.parseInt(args[j+1]);
-						break;
-					case "float":
-						obj = Float.parseFloat(args[j+1]);
-						break;
-					case "double":
-						obj = Double.parseDouble(args[j+1]);
-						break;
-					case "long":
-						obj = Long.parseLong(args[j+1]);
-						break;
-					case "short":
-						obj = Short.parseShort(args[j+1]);
-						break;
-					case "byte":
-						obj = Byte.parseByte(args[j+1]);
-						break;
-					case "boolean":
-						obj = Boolean.parseBoolean(args[j+1]);
-						break;
-					}
-				//If the string is in a wrong format, this exception will be thrown Example: Integer.parseInt("2.2");
-				}catch(NumberFormatException ex){
-					throw new InvalidArgumentException("Argument " + args[j+1] + " is not in the right format");
-				}
-			}
-			//Fill object buffer
-			castParams[j] = obj;
-			j += 1;
-		}
-		
-		//Save objects
-		container.setParams(castParams);
+		container.setCommandType(found);
+	
 		
 		return container;
+			
 	}
+	
+	private Object getCasted( Class<?> parameter, String value )
+	{
+		// if parameter = varargs, join remaining args into array
+		if (parameter.isArray())
+		{
+			varArgs.add(value);
+			argsIterator.forEachRemaining( varArgs::add );
+			return varArgs.toArray(new String[0]);
+		}
+		if (value == null)
+			throw new NotEnoughArgumentsException("Not enough arguments.");
+		Object result = null;
+		try{
+			//Try to cast the users arguments based on the list of parameter types
+			result = parameter.cast(value);
+		}catch(ClassCastException e){
+			//If we try to cast a primitive time, a ClassCastException will be thrown 
+			try{
+
+				//Basic types have to be parsed, not casted
+				switch(parameter.toString()){
+				case "int":
+					result = Integer.parseInt(value);
+					break;
+				case "float":
+					result = Float.parseFloat(value);
+					break;
+				case "double":
+					result = Double.parseDouble(value);
+					break;
+				case "long":
+					result = Long.parseLong(value);
+					break;
+				case "short":
+					result = Short.parseShort(value);
+					break;
+				case "byte":
+					result = Byte.parseByte(value);
+					break;
+				case "boolean":
+					result = Boolean.parseBoolean(value);
+					break;
+				}
+			//If the string is in a wrong format, this exception will be thrown Example: Integer.parseInt("2.2");
+			}catch(NumberFormatException ex){
+				throw new InvalidArgumentException("Argument " + value + " is not in the right format");
+			}
+		}
+		return result;
+	}
+
 }

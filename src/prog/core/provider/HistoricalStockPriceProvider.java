@@ -60,8 +60,10 @@ public class HistoricalStockPriceProvider extends StockPriceProvider {
 			url = new URL("http://www.google.com/finance/historical?output=csv&q=ETR:" + toETR.get(currentShare.getName()));
 			is = url.openConnection().getInputStream();		
 			reader = new BufferedReader( new InputStreamReader( is )  );
-			
+						
+			// Überspringe erste Zeile (Überschriften)
 			reader.readLine();
+			
 			while( ( line = reader.readLine() ) != null )  
 			{
 						
