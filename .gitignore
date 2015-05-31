@@ -11,6 +11,7 @@ gradle-app.setting
 
 # Dont excluse Gradle wrapper though
 !gradle-wrapper.jar
+!build.gradle
 
 # Exclude java class files
 *.class
