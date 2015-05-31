@@ -107,7 +107,7 @@ public class HistoricalStockPriceProvider extends StockPriceProvider {
 				e.printStackTrace();
 			}
 		super.updateShareRates();
-		System.out.println(currentDate);
+//		System.out.println(currentDate);
 		currentDate = currentDate.plusDays(1);
 	}
 

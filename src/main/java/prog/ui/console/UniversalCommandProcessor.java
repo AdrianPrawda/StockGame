@@ -42,7 +42,7 @@ public class UniversalCommandProcessor {
 						.collect( Collectors.joining("\n") );
 		
 
-		writer.print(s);
+		writer.print(s + "\n");
 		process();
 	}
 	
