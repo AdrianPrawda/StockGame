@@ -1,1 +1,40 @@
 /bin/
+/build/
+/tmp/
+
+# Exclude logging files
+session.txt.*
+
+# Excluse Gradle stuff
+.gradle
+gradle-app.setting
+
+# Dont excluse Gradle wrapper though
+!gradle-wrapper.jar
+
+# Exclude java class files
+*.class
+
+# Exclude java package files
+*.jar
+*.war
+*.ear
+
+# Exclude JVM crash logs
+hs_err_pid*
+
+# Excluse locally stored "Eclipse launch configurations"
+*.launch
+
+# Exclude Eclipse core / JDT-specific files
+.project
+.classpath
+
+# Other Eclipse files
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
