@@ -17,6 +17,7 @@ public class StockGameLauncher {
 	
 	public static void main(String[] args) throws SecurityException, IOException{
 		System.setProperty("java.util.logging.config.file", "logging.properties");
+		System.setProperty("language", "de-DE");
 		
 		AccountManagerProxy handler = new AccountManagerProxy(accountManager);
 		AccountManager manager = (AccountManager) Proxy.newProxyInstance(

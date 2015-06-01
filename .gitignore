@@ -4,6 +4,7 @@
 
 # Exclude logging files
 session.txt.*
+transactions.html
 
 # Excluse Gradle stuff
 .gradle

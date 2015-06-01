@@ -2,12 +2,16 @@ package prog.test.junit;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+import java.text.DateFormat;
 import java.text.Format;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -28,9 +32,22 @@ public class GeneralTests {
 	private static String stdPlayerName;
 	private static String stdShare;
 	private static Player stdPlayer;
+	
+	private static NumberFormat numberFormat;
+	private static DateFormat dateFormat;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		System.setProperty("language", "en-US");
+		
+		String[] langProperties = System.getProperty("language").split("-");
+		
+		Locale loc = new Locale(langProperties[0], langProperties[1]);
+		ResourceBundle bundle = ResourceBundle.getBundle("LabelsBundle", loc);
+		
+		numberFormat = NumberFormat.getCurrencyInstance(loc);
+		dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.DEFAULT, loc);
+		
 		stdPlayerName = "Player 1";
 		stdShare = "BMW";
 		
@@ -99,36 +116,34 @@ public class GeneralTests {
 	}
 	
 	@Test
-	public void getTransactions() throws FundsExceededException{
+	public void getTransactions() throws FundsExceededException, IOException{
 		manager.buyShares(stdPlayerName, stdShare, 2);
 		Date date = new Date();
-		Format format = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-		String s = format.format(date);
+		String s = dateFormat.format(date);
 		
-		String test = "[" + s + "]\t" + "BUY\t" + stdShare + "\t2\t" + "-" + "200.0" + " €\n";
+		String test = "[" + s + "]\t" + "BUY\t" + stdShare + "\t2\t" + "-" + "$200.00" + "\n";
 		
-		assertEquals(test, manager.getTransactions(stdPlayerName));
+		assertEquals(test, manager.getTransactions(stdPlayerName,"text/plain"));
 	}
 	
 	@Test
-	public void getTransactionsByAmount() throws FundsExceededException{
+	public void getTransactionsByAmount() throws FundsExceededException, IOException{
 		manager.buyShares(stdPlayerName, stdShare, 3);
 		manager.buyShares(stdPlayerName, stdShare, 2);
 		
 		Date date = new Date();
-		Format format = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-		String s = format.format(date);
+		String s = dateFormat.format(date);
 		
-		String testString1 = "[" + s + "]\t" + "BUY\t" + stdShare + "\t2\t" + "-" + "200.0" + " €\n";
-		String testString2 = "[" + s + "]\t" + "BUY\t" + stdShare + "\t3\t" + "-" + "300.0" + " €\n";
+		String testString1 = "[" + s + "]\t" + "BUY\t" + stdShare + "\t2\t" + "-" + "$200.00" + "\n";
+		String testString2 = "[" + s + "]\t" + "BUY\t" + stdShare + "\t3\t" + "-" + "$300.00" + "\n";
 		
 		String test = testString1 + testString2;
 		
-		assertEquals(test, manager.getTransactions(stdPlayerName, "amount"));
+		assertEquals(test, manager.getTransactions(stdPlayerName, "text/plain", "amount"));
 	}
 	
 	@Test
-	public void getTransactionsByAmountAndShares() throws FundsExceededException, ParseException{
+	public void getTransactionsByAmountAndShares() throws FundsExceededException, ParseException, IOException{
 		provider.createShare("A", 5000);
 		
 		manager.buyShares(stdPlayerName, stdShare, 3);
@@ -136,16 +151,15 @@ public class GeneralTests {
 		manager.buyShares(stdPlayerName, "A", 1);
 		
 		Date date = new Date();
-		Format format = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-		String s = format.format(date);
+		String s = dateFormat.format(date);
 		
-		String testString1 = "[" + s + "]\t" + "BUY\t" + "A" + "\t1\t" + "-" + "50.0" + " €\n";
-		String testString2 = "[" + s + "]\t" + "BUY\t" + stdShare + "\t2\t" + "-" + "200.0" + " €\n";
-		String testString3 = "[" + s + "]\t" + "BUY\t" + stdShare + "\t3\t" + "-" + "300.0" + " €\n";
+		String testString1 = "[" + s + "]\t" + "BUY\t" + "A" + "\t1\t" + "-" + "$50.00" + "\n";
+		String testString2 = "[" + s + "]\t" + "BUY\t" + stdShare + "\t2\t" + "-" + "$200.00" + "\n";
+		String testString3 = "[" + s + "]\t" + "BUY\t" + stdShare + "\t3\t" + "-" + "$300.00" + "\n";
 		
 		String test = testString1 + testString2 + testString3;
 		
-		assertEquals(test, manager.getTransactions(stdPlayerName, "share", "amount"));
+		assertEquals(test, manager.getTransactions(stdPlayerName, "text/plain", "share", "amount"));
 	}
 	
 	@Test(expected = prog.exception.ObjectAlreadyExistsException.class)

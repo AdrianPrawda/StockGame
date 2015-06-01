@@ -1,10 +1,20 @@
 package prog.core;
 
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
@@ -13,9 +23,10 @@ import java.util.stream.Collectors;
 import prog.exception.*;
 import prog.core.provider.*;
 import prog.interfaces.AccountManager;
+import prog.util.SimpleHTMLDocument;
 
 public class AccountManagerImpl implements AccountManager {
-	
+	private String TRANSACTIONS_FILE_NAME = "transactions.html";
 	
 	private AccountManager proxy;
 	
@@ -218,18 +229,65 @@ public class AccountManagerImpl implements AccountManager {
 		getPlayer(playerName).getPlayerAgent().dismiss();
 	}
 
+	private String transactionsToHtml(String history, String playerName){
+		SimpleHTMLDocument html = new SimpleHTMLDocument("utf-8","Transactions");
+		html.addMeta("viewport", "width=device-width, initial-scale=1.0");
+		
+		html.addHeadline("Transactions for player" + playerName, 3);
+		
+		String[] langProperties = System.getProperty("language").split("-");
+		Locale currentLocale = new Locale(langProperties[0], langProperties[1]);
+		DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.DEFAULT, currentLocale);
+		
+		Date date = new Date();
+		dateFormat.format(date);
+		
+		html.addParagraph("Date of recording: " + date);
+		
+		ArrayList<String> wordList = new ArrayList<String>(Arrays.asList(history.split("\n")));
+		for(String s : wordList){
+			html.addParagraph(s);
+		}
+		
+		return html.build();
+	}
 
 	@Override
-	public String getTransactions(String playerName, String... options) 
+	public String getTransactions(String playerName, String mimeType, String... options) throws IOException
 	{
 			
 		ArrayList<Transaction> transactions = getPlayer(playerName).getTransactions();
-			    
-	    return transactions
+		
+		String trs = transactions
 	    		.stream()
 	    		.sorted( Transaction.getComparator(options) )
 	    		.map( Transaction::toString )
 	    		.collect( Collectors.joining() );
+		
+		String out = "";
+		
+		switch(mimeType){
+		case "text/plain":
+			out = trs;
+			break;
+		case "text/html":
+			try(FileWriter fwrite = new FileWriter(new File(TRANSACTIONS_FILE_NAME))) {
+				fwrite.write(transactionsToHtml(trs, playerName));
+			}
+			
+			out = "File successfully created. Open " + TRANSACTIONS_FILE_NAME + " to view.";
+			break;
+		default:
+			throw new InvalidArgumentException("MIME type " + mimeType + " is not supported.");
+		}
+		
+//	    return transactions
+//	    		.stream()
+//	    		.sorted( Transaction.getComparator(options) )
+//	    		.map( Transaction::toString )
+//	    		.collect( Collectors.joining() );
+		
+		return out;
 		
 	}
 

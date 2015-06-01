@@ -1,10 +1,14 @@
 package prog.core;
 
+import java.text.DateFormat;
 import java.text.Format;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import prog.exception.InvalidArgumentException;
 
@@ -41,10 +45,16 @@ public class Transaction
 	@Override
 	public String toString()
 	{
+		String[] langProperties = System.getProperty("language").split("-");
+		
+		Locale currentLocale = new Locale(langProperties[0], langProperties[1]);
+		
+		NumberFormat numberFormat = NumberFormat.getCurrencyInstance(currentLocale);
+		DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.DEFAULT, currentLocale);
+		
 		String s = new String();
 		Date d = new Date(time);
-		Format format = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-		String date = format.format(d);
+		String date = dateFormat.format(d);
 		
 		s += "[" + date + "]\t";
 		s += (type == Type.BUY) ? "BUY" : "SELL";
@@ -52,9 +62,7 @@ public class Transaction
 		s += "\t"+ amount;
 		s += "\t";
 		s += (type == Type.BUY) ? "-" : "+";
-		s += ((float) this.money/100) + " €\n";
-		
-		
+		s += numberFormat.format(((float) this.money/100)) + "\n";
 		
 		return s;
 	}

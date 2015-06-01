@@ -1,5 +1,6 @@
 package prog.interfaces;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 import prog.exception.FundsExceededException;
@@ -52,10 +53,9 @@ public interface AccountManager {
 	@AsCommand(commandName = "da", description = "<player> * dismiss trading bot")
 	public void dismissPlayerAgent(String playerName);
 	
-	
 	//Get Transactions
-	@AsCommand(commandName = "gt", description = "<player> <order1> * get Transaction")
-	public String getTransactions(String playerName, String... orderBy1);
+	@AsCommand(commandName = "gt", description = "<player> <mimeType> <order1> * get Transaction")
+	public String getTransactions(String playerName, String mimeType, String... orderBy1) throws IOException;
 
 	
 	public HashMap<String, Player> getPlayers();

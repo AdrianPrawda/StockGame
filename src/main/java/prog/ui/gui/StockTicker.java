@@ -2,6 +2,8 @@ package prog.ui.gui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TimerTask;
@@ -10,6 +12,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map.Entry;
 import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -35,14 +42,22 @@ public class StockTicker extends JFrame{
 		}
 		
 		private String createText(){
+			String[] langProperties = System.getProperty("language").split("-");
+			
+			Locale currentLocale = new Locale(langProperties[0], langProperties[1]);
+			ResourceBundle bundle = ResourceBundle.getBundle("LabelsBundle", currentLocale);
+			
+			NumberFormat numberFormat = NumberFormat.getCurrencyInstance(currentLocale);
+			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.DEFAULT, currentLocale);
+			
 			String output = "<html>";
 			output += "<style>body{padding: 5px;width:600px}#players td{border: 1px black solid;width: 100px}</style>";
 			output += "<body>"; 
 			
-			output += "Aktienkurse:<br><br><table>";
+			output += bundle.getString("StockTicker.stockPrice") + ":<br><br><table>";
 			Set<Share> shares = provider.getAllSharesAsSnapshot();
 			for( Share share : shares )
-				output += "<tr><td>"+ share.getName() +"</td><td>"+ ((float) share.getPrice()/100) +" �</td></tr>";
+				output += "<tr><td>"+ share.getName() +"</td><td>"+ numberFormat.format(((float) share.getPrice()/100)) + "</td></tr>";
 
 			output += "</table>";
 			
@@ -50,13 +65,13 @@ public class StockTicker extends JFrame{
 		
 			
 			output += "<table id='players'>";
-			output += "<tr><th></th><th>Verm�gen</th><th>Kontostand</th><th>Aktien</th></tr>";
+			output += "<tr><th></th><th>" + bundle.getString("StockTicker.assets") + "</th><th>" + bundle.getString("StockTicker.balance") + "</th><th>" + bundle.getString("StockTicker.shares") + "</th></tr>";
 			for ( Entry<String,Player> entry : players.entrySet() )
 			{
 				Player currentPlayer = entry.getValue();
 				output += "<tr>";
-				output += "<td>"+ currentPlayer.getName() +"</td><td>"+ ((float) currentPlayer.value() / 100) +" €</td>";
-				output += "<td>"+ ((float) currentPlayer.getCashAccount().value() / 100) +" €</td>";
+				output += "<td>"+ currentPlayer.getName() +"</td><td>"+ numberFormat.format(((float) currentPlayer.value() / 100)) + "</td>";
+				output += "<td>"+ numberFormat.format(((float) currentPlayer.getCashAccount().value() / 100)) + "</td>";
 				ArrayList<Share> ownedShares = currentPlayer.getShareDepositAccount().getAllSharesAsSnapshot();
 				output += "<td>";
 				for ( Share share : ownedShares )
@@ -68,10 +83,8 @@ public class StockTicker extends JFrame{
 			
 			output += "</table>";
 			
-            Calendar cal = Calendar.getInstance();
-            Date date = cal.getTime();
-            DateFormat dateFormatter = DateFormat.getDateTimeInstance();
-            output += dateFormatter.format(date) + "</body></html>";
+			Date date = new Date();
+			output += dateFormat.format(date) + "</body></html>";
             return output;
 		}
 	}
