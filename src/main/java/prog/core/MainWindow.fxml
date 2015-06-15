@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="425.0" prefWidth="659.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="prog.ui.gui.MainWindowController">
+   <top>
+      <VBox fx:id="menuBarContainer" prefHeight="26.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <MenuBar fx:id="menuBar">
+              <menus>
+                <Menu fx:id="fileMenu" mnemonicParsing="false" text="File">
+                  <items>
+                    <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" onAction="#closeApplication" text="Close" />
+                  </items>
+                </Menu>
+                <Menu fx:id="optionsMenu" mnemonicParsing="false" text="Options">
+                  <items>
+                    <MenuItem fx:id="changeRefTimeMenuItem" mnemonicParsing="false" onAction="#openRefTimeMenu" text="Change reference time" />
+                  </items>
+                </Menu>
+                <Menu fx:id="helpMenu" mnemonicParsing="false" text="Help">
+                  <items>
+                    <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" onAction="#openAboutMenu" text="About" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+         </children>
+      </VBox>
+   </top>
+   <center>
+      <GridPane fx:id="mainPane" BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="395.0" minWidth="10.0" prefWidth="395.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="315.0" minWidth="0.0" prefWidth="0.0" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints maxHeight="128.0" minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="128.0" minHeight="10.0" prefHeight="76.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="296.0" minHeight="10.0" prefHeight="265.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="118.0" minHeight="0.0" prefHeight="29.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <TextArea fx:id="consoleOutputField" editable="false" prefHeight="240.0" prefWidth="242.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="2" />
+            <HBox fx:id="topRow" prefHeight="100.0" prefWidth="200.0" GridPane.columnSpan="2147483647">
+               <children>
+                  <Label fx:id="selectedPlayerLabel" text="Selected Player:">
+                     <HBox.margin>
+                        <Insets left="1.0" right="4.0" top="2.5" />
+                     </HBox.margin>
+                  </Label>
+                  <ChoiceBox fx:id="playerList" prefWidth="150.0">
+                     <HBox.margin>
+                        <Insets right="8.0" />
+                     </HBox.margin>
+                  </ChoiceBox>
+                  <Button fx:id="loadPlayerButton" mnemonicParsing="false" onAction="#loadPlayer" text="Load Player">
+                     <HBox.margin>
+                        <Insets right="3.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="newPlayerButton" mnemonicParsing="false" onAction="#openNewPlayerMenu" text="New Player" />
+               </children>
+            </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
+               <children>
+                  <VBox fx:id="playerCapitalContainer" prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Label fx:id="capitalLabel" maxWidth="1.7976931348623157E308" text="Capital">
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                        </Label>
+                        <TextField fx:id="playerCapital" editable="false" />
+                        <Label fx:id="capitalProfit" text="Profit %" />
+                     </children>
+                     <HBox.margin>
+                        <Insets right="2.0" top="4.0" />
+                     </HBox.margin>
+                  </VBox>
+                  <VBox fx:id="PlayerAccountContainer" prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Label fx:id="accountLabel" maxWidth="1.7976931348623157E308" text="Account" />
+                        <TextField fx:id="playerAccount" editable="false" />
+                        <Label fx:id="accountProfit" text="Profit %" />
+                     </children>
+                     <HBox.margin>
+                        <Insets right="2.0" top="4.0" />
+                     </HBox.margin>
+                  </VBox>
+                  <VBox fx:id="playerSharesContainer" prefHeight="69.0" prefWidth="167.0">
+                     <children>
+                        <Label fx:id="sharesLabel" maxWidth="1.7976931348623157E308" text="Shares" />
+                        <TextArea fx:id="playerSharesField" editable="false" prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                     <HBox.margin>
+                        <Insets top="4.0" />
+                     </HBox.margin>
+                  </VBox>
+                  <VBox fx:id="toggleButtonContainer" prefHeight="71.0" prefWidth="83.0">
+                     <children>
+                        <HBox fx:id="agentContainer" prefHeight="37.0" prefWidth="120.0">
+                           <children>
+                              <Label fx:id="agentLabel" text="Agent" />
+                              <ToggleButton fx:id="agentToggleButton" mnemonicParsing="false" onAction="#togglePlayerAgent" text="Off">
+                                 <HBox.margin>
+                                    <Insets left="6.0" />
+                                 </HBox.margin>
+                              </ToggleButton>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="4.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox fx:id="debugContainer" prefHeight="46.0" prefWidth="88.0">
+                           <children>
+                              <Label fx:id="debugLabel" text="Debug" />
+                              <ToggleButton fx:id="debugToggleButton" mnemonicParsing="false" onAction="#toggleDebugMode" text="Off">
+                                 <HBox.margin>
+                                    <Insets left="6.0" />
+                                 </HBox.margin>
+                              </ToggleButton>
+                           </children>
+                        </HBox>
+                     </children>
+                     <HBox.margin>
+                        <Insets left="6.0" top="19.0" />
+                     </HBox.margin>
+                  </VBox>
+               </children>
+               <GridPane.margin>
+                  <Insets bottom="6.0" top="3.0" />
+               </GridPane.margin>
+            </HBox>
+            <HBox fx:id="playerInputContainer" prefHeight="100.0" prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="3">
+               <children>
+                  <TextField fx:id="playerInput" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="406.0" />
+                  <Button fx:id="sendButton" mnemonicParsing="false" onAction="#sendPlayerInput" text="Send" />
+               </children>
+               <GridPane.margin>
+                  <Insets top="2.5" />
+               </GridPane.margin>
+            </HBox>
+         </children>
+         <BorderPane.margin>
+            <Insets left="4.0" right="2.0" />
+         </BorderPane.margin>
+      </GridPane>
+   </center>
+   <right>
+      <ScrollPane fx:id="stockPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <content>
+            <VBox fx:id="stockPaneVBox" />
+        </content>
+         <BorderPane.margin>
+            <Insets bottom="3.0" right="1.0" />
+         </BorderPane.margin>
+      </ScrollPane>
+   </right>
+</BorderPane>

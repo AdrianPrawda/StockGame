@@ -19,10 +19,39 @@ public class CommandScanner {
 	List<CommandTypeInfo> cmdTypeInfo;
 	List<Object> varArgs = new ArrayList<Object>();
 	Iterator<String> argsIterator;
+	String commandLine;
 
 	public CommandScanner(ArrayList<CommandTypeInfo> cmdTypeInfo, BufferedReader reader){
 		this.cmdTypeInfo = cmdTypeInfo;
 		this.reader = reader;
+	}
+	
+	public CommandScanner(ArrayList<CommandTypeInfo> cmdTypeInfo){
+		this.cmdTypeInfo = cmdTypeInfo;
+	}
+	
+	public CommandDescriptor commandLine2CommandDescriptor(CommandDescriptor container, String commandLine){
+		ArrayList<String> args = new ArrayList<String>(Arrays.asList(commandLine.split(" ")));
+		
+		//Remove command name from args
+		String cmdName = args.remove(0);
+		argsIterator = args.iterator();
+		
+		CommandTypeInfo found = cmdTypeInfo
+				.stream()
+				.filter( cmd -> cmd.getName().equals(cmdName) )
+				.findAny()
+				.orElseThrow(() -> new ObjectNotFoundException("Command not found"));
+		
+		List<Class<?>> methodParameters = new ArrayList<Class<?>>( Arrays.asList(found.getParamTypes()) );
+		List<Object> castedParameters = new ArrayList<Object>();
+		
+		methodParameters.forEach( p -> castedParameters.add( getCasted(p, argsIterator.hasNext() ? argsIterator.next() : null) ) );
+
+		container.setParams(castedParameters.toArray(new Object[0]));
+		container.setCommandType(found);
+		
+		return container;
 	}
 	
 	public CommandDescriptor commandLine2CommandDescriptor(CommandDescriptor container) throws IOException
