@@ -1,4 +1,4 @@
 # StockGame
 Prog2 Stock Game
 
-2. semester programming project
+2nd semester programming project
